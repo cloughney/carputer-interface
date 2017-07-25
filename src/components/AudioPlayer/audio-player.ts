@@ -1,4 +1,4 @@
-import { MopidySpotifyAudioPlayerSource } from './sources';
+import { MopidySpotifyAudioPlayerSource } from './audio-sources';
 
 export default class AudioPlayer {
 	private sources: IAudioPlayerSource[];
