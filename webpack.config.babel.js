@@ -19,18 +19,14 @@ const paths = {
 };
 
 const entries = env.isTesting ? undefined : {
-	'style': ['./style/site.scss'],
 	'index': [
 		'./src/index'
 	],
-	// 'playground': [
-	// 	'./src/pages/playground'
-	// ],
-	// 'libs': [
-	// 	'react',
-	// 	'react-dom',
-	// 	'react-router-dom'
-	// ]
+	'libs': [
+		'react',
+		'react-dom',
+		'react-router-dom'
+	]
 };
 
 const plugins = [
@@ -43,9 +39,9 @@ const externals = {};
 
 if (env.isTesting) {
 	// externals['cheerio'] = 'window';
-	// externals['react/addons'] = 'react';
-	// externals['react/lib/ExecutionEnvironment'] = 'react';
-	// externals['react/lib/ReactContext'] = 'react';
+	externals['react/addons'] = 'react';
+	externals['react/lib/ExecutionEnvironment'] = 'react';
+	externals['react/lib/ReactContext'] = 'react';
 } else {
 	plugins.push.apply(plugins, [
 		new webpack.ProvidePlugin({
@@ -55,13 +51,13 @@ if (env.isTesting) {
 			filename: '[name].css',
 			allChunks: true
 		}),
-		// new webpack.optimize.CommonsChunkPlugin({
-		// 	name: 'libs',
-		// 	minChunks: Infinity
-		// }),
+		new webpack.optimize.CommonsChunkPlugin({
+			name: 'libs',
+			minChunks: Infinity
+		}),
 		new CopyWebpackPlugin([
 			//{ from: 'favicon.ico', to: 'favicon.ico' },
-			{ from: 'images', to: 'images' }
+			{ from: '**/images/**/*', ignore: ['node_modules/**/*'] }
 		]),
 		//new TsConfigPathsPlugin()
 	]);

@@ -3,10 +3,10 @@ import * as ReactDOM from 'react-dom';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 
-import Layout from './pages/Layout';
-// import { reducer } from './common/reducers';
-//
-const stateStore = createStore<AppState>(reducer);
+import { AppState } from './common/state';
+import Layout from './views/Layout';
+
+const stateStore = createStore<AppState>((state, action) => state);
 
 ReactDOM.render(
 	<Provider store={stateStore}>

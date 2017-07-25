@@ -2,6 +2,8 @@ import * as React from 'react';
 import { Action, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 
+import { AppState } from '../../../../common/state';
+
 interface AudioViewProps extends React.Props<any> {
 	// cart?: Cart;
 	// onProductSelectionChange?: (product: Product, isSelected: boolean) => void;
@@ -12,13 +14,12 @@ interface AudioViewState {
 	// productListings: Product[];
 }
 
-//function mapStateToProps(state: AppState): AudioViewProps {
-	// return {
-	// 	cart: state.cart
-	// };
-//}
+function mapStateToProps(state: AppState): AudioViewProps {
+	return {};
+}
 
-//function mapDispatchToProps(dispatch: (action: Action) => Dispatch<Action>): AudioViewProps {
+function mapDispatchToProps(dispatch: Dispatch<Action>): AudioViewProps {
+	return {};
 	// return {
 	// 	onProductSelectionChange: (product: Product, isSelected: boolean) => {
 	// 		const action = isSelected
@@ -28,7 +29,7 @@ interface AudioViewState {
 	// 		dispatch(action);
 	// 	}
 	// };
-//}
+}
 
 class AudioView extends React.Component<AudioViewProps, AudioViewState> {
 	public constructor(props: AudioViewState) {
@@ -40,28 +41,16 @@ class AudioView extends React.Component<AudioViewProps, AudioViewState> {
 
 	}
 
-	public render(): any {
-
-		// return (
-		// 	<div className="container shop-wrapper">
-		// 		<h1>Products</h1>
-		// 		<div className="product-list loading-container">
-		// 			<ul className="list-unstyled row">
-		// 				{ productListings }
-		// 			</ul>
-		//
-		// 			{this.state.productListings.length < 1 &&
-		// 				<FloatingMessage message="No products found." displayLink={false} />
-		// 			}
-		//
-		// 			<LoadingOverlay isLoading={ this.state.isLoading } />
-		// 		</div>
-		// 	</div>
-		// );
+	public render(): JSX.Element {
+		return (
+			<div className="container-fluid audio">
+				Audio
+			</div>
+		);
 	}
 }
 
-// export default connect(
-// 	mapStateToProps,
-// 	mapDispatchToProps
-// )(AudioView);
+export default connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(AudioView);
