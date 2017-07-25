@@ -14,23 +14,6 @@ interface AudioViewState {
 	// productListings: Product[];
 }
 
-function mapStateToProps(state: AppState): AudioViewProps {
-	return {};
-}
-
-function mapDispatchToProps(dispatch: Dispatch<Action>): AudioViewProps {
-	return {};
-	// return {
-	// 	onProductSelectionChange: (product: Product, isSelected: boolean) => {
-	// 		const action = isSelected
-	// 			? AddCartItemAction.create(product, 1)
-	// 			: RemoveCartItemAction.create(product.itemId);
-	//
-	// 		dispatch(action);
-	// 	}
-	// };
-}
-
 class AudioView extends React.Component<AudioViewProps, AudioViewState> {
 	public constructor(props: AudioViewState) {
 		super(props);
@@ -49,6 +32,9 @@ class AudioView extends React.Component<AudioViewProps, AudioViewState> {
 		);
 	}
 }
+
+const mapStateToProps = (state: AppState): AudioViewProps => ({});
+const mapDispatchToProps = (dispatch: Dispatch<Action>): AudioViewProps => ({});
 
 export default connect(
 	mapStateToProps,

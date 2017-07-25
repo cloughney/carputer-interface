@@ -8,14 +8,6 @@ import { AppState } from '../../../../common/state';
 interface HomeViewProps { }
 interface HomeViewState { }
 
-function mapStateToProps(state: AppState): HomeViewProps {
-	return { };
-}
-
-function mapDispatchToProps(dispatch: Dispatch<Action>): HomeViewProps {
-	return { };
-}
-
 class HomeView extends React.Component<HomeViewProps, HomeViewState> {
 	public constructor(props: HomeViewProps) {
 		super(props);
@@ -30,6 +22,9 @@ class HomeView extends React.Component<HomeViewProps, HomeViewState> {
 		);
 	}
 }
+
+const mapStateToProps = (state: AppState): HomeViewProps => ({});
+const mapDispatchToProps = (dispatch: Dispatch<Action>): HomeViewProps => ({});
 
 export default connect(
 	mapStateToProps,
