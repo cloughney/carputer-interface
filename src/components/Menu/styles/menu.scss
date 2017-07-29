@@ -1,0 +1,34 @@
+@import '../../../common/styles/bootstrap.scss';
+
+ul.menu {
+	@extend .list-unstyled, .list-inline;
+
+	li {
+		padding-bottom: 5px;
+
+		.menu-item {
+			height: 20em;
+			background-color: #e9e9e9;
+			background-size: 20em;
+			background-position: center;
+			background-repeat: no-repeat;
+
+			//TODO this is wrong, need a better way to handle icons
+			&.audio {
+				background-image: url('../../../common/images/audio.png');
+			}
+			&.spotify {
+				background-image: url('../../../common/images/spotify.png');
+			}
+			&.podcast {
+				background-image: url('../../../common/images/podcast.png');
+			}
+			&.navigation {
+				background-image: url('../../../common/images/navigation.png');
+			}
+			&.settings {
+				background-image: url('../../../common/images/settings.png');
+			}
+		}
+	}
+}

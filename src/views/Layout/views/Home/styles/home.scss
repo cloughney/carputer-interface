@@ -1,17 +1,1 @@
-.menu-item {
-	height: 20em;
-	background-color: #e9e9e9;
-	background-size: 20em;
-	background-position: center;
-	background-repeat: no-repeat;
 
-	&.audio {
-		background-image: url('../images/audio.png');
-	}
-	&.navigation {
-		background-image: url('../images/navigation.png');
-	}
-	&.settings {
-		background-image: url('../images/settings.png');
-	}
-}

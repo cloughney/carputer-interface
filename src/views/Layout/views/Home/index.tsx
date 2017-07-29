@@ -6,32 +6,29 @@ import { Link } from 'react-router-dom';
 import './styles/home.scss';
 
 import { AppState } from '../../../../common/state';
+import Menu, { MenuItem } from '../../../../components/Menu';
 
 interface HomeViewProps { }
 interface HomeViewState { }
 
 class HomeView extends React.Component<HomeViewProps, HomeViewState> {
+	private menuItems: MenuItem[];
+
 	public constructor(props: HomeViewProps) {
 		super(props);
 		this.state = { };
+
+		this.menuItems = [
+			{ route: '/audio', className: 'audio' },
+			{ route: '/navigation', className: 'navigation' },
+			{ route: '/settings', className: 'settings' }
+		];
 	}
 
 	public render(): JSX.Element {
-		const menuItems = ['audio', 'navigation', 'settings'].map((route, index) => (
-			<li key={index} className="col-md-4">
-				<Link to={ '/' + route }>
-					<div className={ "menu-item " + route }>
-
-					</div>
-				</Link>
-			</li>
-		));
-
 		return (
 			<div className="container-fluid">
-				<ul className="list-unstyled list-inline">
-					{ menuItems }
-				</ul>
+				<Menu items={ this.menuItems } />
 			</div>
 		);
 	}

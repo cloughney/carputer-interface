@@ -1,6 +1,4 @@
-@import 'variables';
-
-@import 'bootstrap-sass/assets/stylesheets/bootstrap';
+@import '../../../common/styles/bootstrap.scss';
 
 .app-nav {
 	@extend .container-fluid;

@@ -3,6 +3,7 @@ import { Action, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 
 import { AppState } from '../../../../common/state';
+import Menu, { MenuItem } from '../../../../components/Menu';
 
 interface AudioViewProps extends React.Props<any> {
 	// cart?: Cart;
@@ -15,19 +16,22 @@ interface AudioViewState {
 }
 
 class AudioView extends React.Component<AudioViewProps, AudioViewState> {
+	private menuItems: MenuItem[];
+
 	public constructor(props: AudioViewState) {
 		super(props);
 		this.state = { };
-	}
 
-	public componentWillMount(): void {
-
+		this.menuItems = [
+			{ route: '/audio/spotify', className: 'spotify' },
+			{ route: '/audio/podcast', className: 'podcast' }
+		];
 	}
 
 	public render(): JSX.Element {
 		return (
-			<div className="container-fluid audio">
-				Audio
+			<div className="container-fluid">
+				<Menu rowLength={3} items={ this.menuItems } />
 			</div>
 		);
 	}
