@@ -3,6 +3,8 @@ import { Action, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 
+import './styles/layout.scss';
+
 import { AppState } from '../../common/state';
 import { routes } from './routes';
 
@@ -12,9 +14,15 @@ class Layout extends React.Component<AppProps, AppState> {
 	public render(): any {
 		return (
 			<Router>
-				<div className="container-fluid">
-					<nav>
-						<Link to="/">Home</Link>
+				<div className="app-container">
+					<nav className="app-nav">
+						<ul>
+							<li>
+								<Link to="/">
+									<span className="glyphicon glyphicon-home"></span> Home
+								</Link>
+							</li>
+						</ul>
 					</nav>
 					<div className="content">
 						<Switch>

@@ -55,10 +55,10 @@ if (env.isTesting) {
 			name: 'libs',
 			minChunks: Infinity
 		}),
-		new CopyWebpackPlugin([
-			//{ from: 'favicon.ico', to: 'favicon.ico' },
-			{ from: '**/images/**/*', ignore: ['node_modules/**/*'] }
-		]),
+		// new CopyWebpackPlugin([
+		// 	//{ from: 'favicon.ico', to: 'favicon.ico' },
+		// 	{ from: '**/images/**/*', ignore: ['node_modules/**/*'] }
+		// ]),
 		//new TsConfigPathsPlugin()
 	]);
 
@@ -129,7 +129,7 @@ module.exports = {
 			include: [
 				path.resolve('node_modules/bootstrap'),
 				path.resolve('node_modules/font-awesome'),
-				path.resolve('images')
+				path.resolve('src')
 			],
 			use: {
 				loader: 'url-loader',

@@ -3,6 +3,8 @@ import { Action, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
+import './styles/home.scss';
+
 import { AppState } from '../../../../common/state';
 
 interface HomeViewProps { }
@@ -15,10 +17,22 @@ class HomeView extends React.Component<HomeViewProps, HomeViewState> {
 	}
 
 	public render(): JSX.Element {
+		const menuItems = ['audio', 'navigation', 'settings'].map((route, index) => (
+			<li key={index} className="col-md-4">
+				<Link to={ '/' + route }>
+					<div className={ "menu-item " + route }>
+
+					</div>
+				</Link>
+			</li>
+		));
+
 		return (
-			<ul className="list-unstyled">
-				<li><Link to="/audio">Audio</Link></li>
-			</ul>
+			<div className="container-fluid">
+				<ul className="list-unstyled list-inline">
+					{ menuItems }
+				</ul>
+			</div>
 		);
 	}
 }

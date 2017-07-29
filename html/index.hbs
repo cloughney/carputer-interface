@@ -2,13 +2,14 @@
 <html lang="en-US">
 <head>
 	<title>Carputer</title>
-	<script src="http://192.168.1.153:6680/mopidy/mopidy.js"></script>
 </head>
 <body>
-	<div id="app" class="container-fluid">
+	<div id="app">
 
 	</div>
-	{{# if pageOptions.includeDevServer }}
+	{{ 'test' }}
+	<script src="https://maps.googleapis.com/maps/api/js?key={{ htmlWebpackPlugin.options.pageOptions.googleApiKey }}"></script>
+	{{# if htmlWebpackPlugin.options.pageOptions.includeDevServer }}
 	    <script src="/webpack-dev-server.js"></script>
 	{{/ if}}
 </body>
