@@ -13,7 +13,6 @@ interface NavigationViewState { }
 class NavigationView extends React.Component<NavigationViewProps, NavigationViewState> {
 	private mapContainer: HTMLDivElement;
 	private locationWatcherHandle: number;
-	private map: google.maps.Map;
 
 	public constructor(props: NavigationViewProps) {
 		super(props);
@@ -21,24 +20,13 @@ class NavigationView extends React.Component<NavigationViewProps, NavigationView
 	}
 
 	public componentDidMount(): void {
-		let positionMarker: google.maps.Marker;
+		const initialLocation = { lat: 0, lng: 0 };
+		const map = this.initializeMap(initialLocation);
+		const positionMarker = new google.maps.Marker({ position: initialLocation, map: map });
 
-		this.locationWatcherHandle = navigator.geolocation.watchPosition((pos => {
-			const location: google.maps.LatLngLiteral = {
-				lat: pos.coords.latitude,
-				lng: pos.coords.longitude
-			};
-
-			if (!this.map) {
-				this.map = this.initializeMap(location);
-			}
-
-			if (!positionMarker) {
-				positionMarker = new google.maps.Marker({ position: location, map: this.map });
-			} else {
-				positionMarker.setPosition(location);
-			}
-		}));
+		this.locationWatcherHandle = navigator.geolocation.watchPosition(
+			this.onPositionUpdate.bind(this, map, positionMarker),
+			this.onPositionError);
 	}
 
 	public componentWillUnmount(): void {
@@ -47,9 +35,25 @@ class NavigationView extends React.Component<NavigationViewProps, NavigationView
 
 	public render(): JSX.Element {
 		return (
-			<div className="navigation-map" ref={ e => this.mapContainer = e }></div>
+			<div className="navigation-map" ref={ e => this.mapContainer = e }>
+
+			</div>
 		);
 	}
+
+	private onPositionUpdate = (map: google.maps.Map, marker: google.maps.Marker, position: Position): void => {
+		const location: google.maps.LatLngLiteral = {
+			lat: position.coords.latitude,
+			lng: position.coords.longitude
+		};
+
+		map.setCenter(location); //TODO logic for if user wants the map to follow
+		marker.setPosition(location);
+	};
+
+	private onPositionError = (error: PositionError): void => {
+
+	};
 
 	private initializeMap = (location: google.maps.LatLngLiteral): google.maps.Map => {
 		const map = new google.maps.Map(this.mapContainer, {
