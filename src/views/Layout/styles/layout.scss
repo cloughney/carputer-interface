@@ -1,36 +1,42 @@
 @import '../../../common/styles/bootstrap.scss';
 
-#app {
-	position: absolute;
-	top:0; bottom: 0;
-	left: 0; right: 0;
+body {
+	cursor: none;
+	a { cursor: none; }
+	//user-select: none;
 
-	.app-container {
-		height: 100%;
-		overflow: hidden;
+	#app {
+		position: absolute;
+		top:0; bottom: 0;
+		left: 0; right: 0;
 
-		.app-nav {
-			@extend .container-fluid;
+		.app-container {
+			height: 100%;
+			overflow: hidden;
 
-			ul {
-				@extend .list-unstyled, .list-inline;
-				margin-top: 10px;
+			.app-nav {
+				@extend .container-fluid;
 
-				li {
-					font-size: 1.4em;
+				ul {
+					@extend .list-unstyled, .list-inline;
+					margin-top: 10px;
 
-					a {
-						color: #333;
-						text-decoration: none;
+					li {
+						font-size: 1.4em;
+
+						a {
+							color: #333;
+							text-decoration: none;
+						}
 					}
 				}
 			}
-		}
 
-		.app-content {
-			height: 100%;
-			overflow-x: hidden;
-			overflow-y: auto;
+			.app-content {
+				height: 100%;
+				overflow-x: hidden;
+				overflow-y: auto;
+			}
 		}
 	}
 }

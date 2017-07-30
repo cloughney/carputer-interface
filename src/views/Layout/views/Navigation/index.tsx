@@ -3,8 +3,6 @@ import { Action, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
-import './styles/navigation.scss';
-
 import { AppState } from '../../../../common/state';
 import NavigationMap from '../../../../components/NavigationMap';
 
