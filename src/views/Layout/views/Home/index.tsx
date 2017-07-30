@@ -21,7 +21,8 @@ class HomeView extends React.Component<HomeViewProps, HomeViewState> {
 		this.menuItems = [
 			{ route: '/audio', className: 'audio' },
 			{ route: '/navigation', className: 'navigation' },
-			{ route: '/settings', className: 'settings' }
+			{ route: '/settings', className: 'settings' },
+			{ route: '/test/list', className: 'list' }
 		];
 	}
 

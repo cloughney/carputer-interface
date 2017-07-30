@@ -23,7 +23,7 @@ class AudioView extends React.Component<AudioViewProps, AudioViewState> {
 		this.state = { };
 
 		this.menuItems = [
-			{ route: '/audio/spotify', className: 'spotify' },
+			{ route: '/audio/spotify/list', className: 'spotify' },
 			{ route: '/audio/podcast', className: 'podcast' }
 		];
 	}

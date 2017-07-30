@@ -1,16 +1,19 @@
 import * as React from 'react';
 import { Action, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import { HashRouter as Router, Switch, Route, Link } from 'react-router-dom';
 
 import './styles/layout.scss';
 
 import { AppState } from '../../common/state';
-import { routes } from './routes';
+import HomeView from './views/Home';
+import AudioView from './views/Audio';
+import NavigationView from './views/Navigation';
+import ListView from './views/List';
 
-interface AppProps extends React.Props<any> { }
+interface LayoutProps extends React.Props<Layout> { }
 
-class Layout extends React.Component<AppProps, AppState> {
+class Layout extends React.Component<LayoutProps, AppState> {
 	public render(): any {
 		return (
 			<Router>
@@ -26,7 +29,10 @@ class Layout extends React.Component<AppProps, AppState> {
 					</nav>
 					<div className="app-content">
 						<Switch>
-							{routes.map((route, i) => (<Route key={i} {...route} />))}
+							<Route exact path="/" component={ HomeView } />
+							<Route path="/audio" component={ AudioView } />
+							<Route path="/navigation" component={ NavigationView } />
+							<Route path="/(.+)/list" component={ ListView } />
 						</Switch>
 					</div>
 				</div>
@@ -35,11 +41,11 @@ class Layout extends React.Component<AppProps, AppState> {
 	}
 }
 
-function mapStateToProps(state: AppState): AppProps {
+function mapStateToProps(state: AppState): LayoutProps {
 	return { };
 }
 
-function mapDispatchToProps(dispatch: Dispatch<Action>): AppProps {
+function mapDispatchToProps(dispatch: Dispatch<Action>): LayoutProps {
 	return { };
 }
 
