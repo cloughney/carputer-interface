@@ -24,7 +24,7 @@ class Layout extends React.Component<AppProps, AppState> {
 							</li>
 						</ul>
 					</nav>
-					<div className="content">
+					<div className="app-content">
 						<Switch>
 							{routes.map((route, i) => (<Route key={i} {...route} />))}
 						</Switch>

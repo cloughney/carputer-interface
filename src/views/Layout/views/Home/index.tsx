@@ -28,7 +28,7 @@ class HomeView extends React.Component<HomeViewProps, HomeViewState> {
 	public render(): JSX.Element {
 		return (
 			<div className="container-fluid">
-				<Menu items={ this.menuItems } />
+				<Menu rowLength={3} items={ this.menuItems } />
 			</div>
 		);
 	}

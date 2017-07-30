@@ -12,6 +12,8 @@ interface NavigationViewState { }
 
 class NavigationView extends React.Component<NavigationViewProps, NavigationViewState> {
 	private mapContainer: HTMLDivElement;
+	private locationWatcherHandle: number;
+	private map: google.maps.Map;
 
 	public constructor(props: NavigationViewProps) {
 		super(props);
@@ -19,37 +21,49 @@ class NavigationView extends React.Component<NavigationViewProps, NavigationView
 	}
 
 	public componentDidMount(): void {
-		navigator.geolocation.getCurrentPosition(pos => {
-			const location = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+		let positionMarker: google.maps.Marker;
 
-			const map = new google.maps.Map(this.mapContainer, {
-				center: location,
-				zoom: 16,
-				streetViewControl: false,
-				mapTypeControl: false,
-				mapTypeId: google.maps.MapTypeId.ROADMAP,
-				styles: [
-					{
-						featureType: 'transit',
-						stylers: [{ visibility: 'on' }]
-					}
-				]
-			});
+		this.locationWatcherHandle = navigator.geolocation.watchPosition((pos => {
+			const location: google.maps.LatLngLiteral = {
+				lat: pos.coords.latitude,
+				lng: pos.coords.longitude
+			};
 
-			const marker = new google.maps.Marker({
-				position: location,
-				map
-			});
+			if (!this.map) {
+				this.map = this.initializeMap(location);
+			}
 
-			const traffic = new google.maps.TrafficLayer();
-			traffic.setMap(map);
-		});
+			if (!positionMarker) {
+				positionMarker = new google.maps.Marker({ position: location, map: this.map });
+			} else {
+				positionMarker.setPosition(location);
+			}
+		}));
+	}
+
+	public componentWillUnmount(): void {
+		navigator.geolocation.clearWatch(this.locationWatcherHandle);
 	}
 
 	public render(): JSX.Element {
 		return (
 			<div className="navigation-map" ref={ e => this.mapContainer = e }></div>
 		);
+	}
+
+	private initializeMap = (location: google.maps.LatLngLiteral): google.maps.Map => {
+		const map = new google.maps.Map(this.mapContainer, {
+			center: location,
+			zoom: 16,
+			streetViewControl: false,
+			mapTypeControl: false,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		});
+
+		const traffic = new google.maps.TrafficLayer();
+		traffic.setMap(map);
+
+		return map;
 	}
 }
 

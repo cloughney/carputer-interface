@@ -28,7 +28,6 @@
   },
   "homepage": "https://github.com/cloughney/carputer-interface#readme",
   "dependencies": {
-    "babel-preset-es2015": "^6.24.1",
     "bootstrap-sass": "^3.3.7",
     "font-awesome": "^4.7.0",
     "react": "^15.6.1",

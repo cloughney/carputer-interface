@@ -1,19 +1,36 @@
 @import '../../../common/styles/bootstrap.scss';
 
-.app-nav {
-	@extend .container-fluid;
+#app {
+	position: absolute;
+	top:0; bottom: 0;
+	left: 0; right: 0;
 
-	ul {
-		@extend .list-unstyled, .list-inline;
-		margin-top: 10px;
+	.app-container {
+		height: 100%;
+		overflow: hidden;
 
-		li {
-			font-size: 1.4em;
+		.app-nav {
+			@extend .container-fluid;
 
-			a {
-				color: #333;
-				text-decoration: none;
+			ul {
+				@extend .list-unstyled, .list-inline;
+				margin-top: 10px;
+
+				li {
+					font-size: 1.4em;
+
+					a {
+						color: #333;
+						text-decoration: none;
+					}
+				}
 			}
+		}
+
+		.app-content {
+			height: 100%;
+			overflow-x: hidden;
+			overflow-y: auto;
 		}
 	}
 }
