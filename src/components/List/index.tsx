@@ -5,24 +5,23 @@ import './styles/list.scss';
 
 export interface ListItem {
 	text: string;
+	route: string;
 	className?: string;
 }
 
 export interface ListProps {
 	items: ListItem[];
-	onItemSelected?: (item: ListItem) => void;
 }
 
-export default function List({
-		items,
-		onItemSelected
-	}: ListProps): JSX.Element {
+export default function List({ items }: ListProps): JSX.Element {
 
 	const ListItems = items.map((item, index) => (
 		<li key={index}>
-			<div className={ `list-item ${item.className}` } onClick={ () => { onItemSelected(item) || undefined; } }>
-				{ item.text }
-			</div>
+			<Link to={ item.route }>
+				<div className={ `list-item ${item.className}` }>
+					{ item.text }
+				</div>
+			</Link>
 		</li>
 	));
 

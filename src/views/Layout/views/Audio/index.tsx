@@ -1,9 +1,11 @@
 import * as React from 'react';
 import { Action, Dispatch } from 'redux';
 import { connect } from 'react-redux';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import { AppState } from '../../../../common/state';
 import Menu, { MenuItem } from '../../../../components/Menu';
+import List, { ListItem } from '../../../../components/List';
 
 interface AudioViewProps extends React.Props<any> {
 	// cart?: Cart;
@@ -17,21 +19,36 @@ interface AudioViewState {
 
 class AudioView extends React.Component<AudioViewProps, AudioViewState> {
 	private menuItems: MenuItem[];
+	private listItems: ListItem[];
 
 	public constructor(props: AudioViewState) {
 		super(props);
 		this.state = { };
 
-		this.menuItems = [
-			{ route: '/audio/spotify/list', className: 'spotify' },
-			{ route: '/audio/podcast', className: 'podcast' }
+		const audioSources: any[] = [
+			{ id: 1, slug: 'spotify', title: 'Spotify', image: 'spotify' },
+			{ id: 2, slug: 'spotify', title: 'Spotify', image: 'podcast' }
 		];
+
+		this.menuItems = audioSources.map(source => ({
+			route: `/audio/${source.slug}/browse`,
+			className: source.image
+		}));
+
+		this.listItems = [
+			{ route: '/audio/spotify/browse', text: '' }
+		]
 	}
 
 	public render(): JSX.Element {
 		return (
 			<div className="container-fluid">
-				<Menu rowLength={3} items={ this.menuItems } />
+				<Switch>
+					<Route exact path="/audio" render={ () => <Menu rowLength={3} items={ this.menuItems } /> } />
+					<Route path="/audio/spotify" component={ (props) => {
+						return (<List items={ [{ route: '', text: '' }] } />);
+					} } />
+				</Switch>
 			</div>
 		);
 	}
