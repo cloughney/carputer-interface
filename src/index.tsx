@@ -2,8 +2,9 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
+import { BrowserRouter as Router } from 'react-router-dom';
 
-import { AppState } from './common/state';
+import AppState from 'state';
 import Layout from './views/Layout';
 
 const stateStore = createStore<AppState>((state, action) => state);

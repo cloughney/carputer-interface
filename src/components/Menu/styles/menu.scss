@@ -1,4 +1,4 @@
-@import '../../../common/styles/bootstrap.scss';
+@import '../../../styles/bootstrap.scss';
 
 ul.menu {
 	@extend .list-unstyled, .list-inline;
@@ -15,19 +15,19 @@ ul.menu {
 
 			//TODO this is wrong, need a better way to handle icons
 			&.audio {
-				background-image: url('../../../common/images/audio.png');
+				background-image: url('../../../images/audio.png');
 			}
 			&.spotify {
-				background-image: url('../../../common/images/spotify.png');
+				background-image: url('../../../images/spotify.png');
 			}
 			&.podcast {
-				background-image: url('../../../common/images/podcast.png');
+				background-image: url('../../../images/podcast.png');
 			}
 			&.navigation {
-				background-image: url('../../../common/images/navigation.png');
+				background-image: url('../../../images/navigation.png');
 			}
 			&.settings {
-				background-image: url('../../../common/images/settings.png');
+				background-image: url('../../../images/settings.png');
 			}
 		}
 	}

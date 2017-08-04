@@ -3,8 +3,8 @@ import { Action, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { RouteComponentProps, Switch, Route, Redirect } from 'react-router-dom';
 
-import { AppState } from '../../../../common/state';
-import AudioSourceBrowser from '../../../../components/AudioSourceBrowser';
+import AppState from 'state';
+import AudioSourceBrowser from './components/AudioSourceBrowser';
 
 type Props = { };
 

@@ -54,7 +54,7 @@ if (env.isTesting) {
 		new webpack.optimize.CommonsChunkPlugin({
 			name: 'libs',
 			minChunks: Infinity
-		}),
+		})
 		// new CopyWebpackPlugin([
 		// 	//{ from: 'favicon.ico', to: 'favicon.ico' },
 		// 	{ from: '**/images/**/*', ignore: ['node_modules/**/*'] }
@@ -71,7 +71,8 @@ if (env.isTesting) {
 					NODE_ENV: JSON.stringify('production')
 				}
 			}),
-			new webpack.optimize.UglifyJsPlugin()
+			new webpack.optimize.UglifyJsPlugin(),
+			//new webpack.optimize.ModuleConcatenationPlugin() //TEST THIS
 		]);
 	}
 }
@@ -87,7 +88,8 @@ module.exports = {
 	},
 
 	resolve: {
-		extensions: ['.ts', '.tsx', '.js', '.html']
+		extensions: ['.ts', '.tsx', '.js', '.html'],
+		modules: [ paths.src, 'node_modules' ]
 	},
 
 	module: {
