@@ -18,7 +18,7 @@ export default function Menu({
 		rowLength = 3
 	}: MenuProps): JSX.Element {
 
-	const listItemClass = `col-md-${ 12 / rowLength }`;
+	const listItemClass = `col-xs-${ 12 / rowLength }`; //TODO remove bootstrap from html
 	const menuItems = items.map((item, index) => (
 		<li key={index} className={ listItemClass }>
 			<Link to={ item.route }>

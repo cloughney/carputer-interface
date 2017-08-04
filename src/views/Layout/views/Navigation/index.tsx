@@ -15,6 +15,10 @@ class NavigationView extends React.Component<NavigationViewProps, NavigationView
 		this.state = { };
 	}
 
+	public componentWillMount(): void {
+		//TODO dynamically load maps api
+	}
+
 	public render(): JSX.Element {
 		return (<NavigationMap></NavigationMap>);
 	}

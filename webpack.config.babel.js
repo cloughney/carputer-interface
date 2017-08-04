@@ -5,7 +5,6 @@ import * as path from 'path';
 
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
-//import { TsConfigPathsPlugin } from 'awesome-typescript-loader';
 
 import * as project from './package.json';
 
@@ -18,7 +17,7 @@ const paths = {
 	out: path.resolve('dist')
 };
 
-const entries = env.isTesting ? undefined : {
+const entry = env.isTesting ? undefined : {
 	'index': [
 		'./src/index'
 	],
@@ -38,7 +37,6 @@ const plugins = [
 const externals = {};
 
 if (env.isTesting) {
-	// externals['cheerio'] = 'window';
 	externals['react/addons'] = 'react';
 	externals['react/lib/ExecutionEnvironment'] = 'react';
 	externals['react/lib/ReactContext'] = 'react';
@@ -58,8 +56,7 @@ if (env.isTesting) {
 		// new CopyWebpackPlugin([
 		// 	//{ from: 'favicon.ico', to: 'favicon.ico' },
 		// 	{ from: '**/images/**/*', ignore: ['node_modules/**/*'] }
-		// ]),
-		//new TsConfigPathsPlugin()
+		// ])
 	]);
 
 	plugins.push.apply(plugins, getHtmlPlugins(env));
@@ -72,13 +69,13 @@ if (env.isTesting) {
 				}
 			}),
 			new webpack.optimize.UglifyJsPlugin(),
-			//new webpack.optimize.ModuleConcatenationPlugin() //TEST THIS
+			new webpack.optimize.ModuleConcatenationPlugin()
 		]);
 	}
 }
 
 module.exports = {
-	entry: entries,
+	entry,
 	plugins,
 	externals,
 
