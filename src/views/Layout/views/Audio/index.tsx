@@ -1,61 +1,43 @@
 import * as React from 'react';
 import { Action, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { RouteComponentProps, Switch, Route, Redirect } from 'react-router-dom';
 
 import { AppState } from '../../../../common/state';
-import Menu, { MenuItem } from '../../../../components/Menu';
-import List, { ListItem } from '../../../../components/List';
+import AudioSourceBrowser from '../../../../components/AudioSourceBrowser';
 
-interface AudioViewProps extends React.Props<any> {
-	// cart?: Cart;
-	// onProductSelectionChange?: (product: Product, isSelected: boolean) => void;
-}
+type Props = { };
 
-interface AudioViewState {
-	// isLoading: boolean;
-	// productListings: Product[];
-}
+type State = { };
 
-class AudioView extends React.Component<AudioViewProps, AudioViewState> {
-	private menuItems: MenuItem[];
-	private listItems: ListItem[];
+type InjectedProps = Props & RouteComponentProps<void>;
 
-	public constructor(props: AudioViewState) {
+class AudioView extends React.Component<InjectedProps, State> {
+	private get redirectPath(): string {
+		return `${this.props.match.url}/sources`;
+	}
+
+	public constructor(props: InjectedProps) {
 		super(props);
 		this.state = { };
-
-		const audioSources: any[] = [
-			{ id: 1, slug: 'spotify', title: 'Spotify', image: 'spotify' },
-			{ id: 2, slug: 'spotify', title: 'Spotify', image: 'podcast' }
-		];
-
-		this.menuItems = audioSources.map(source => ({
-			route: `/audio/${source.slug}/browse`,
-			className: source.image
-		}));
-
-		this.listItems = [
-			{ route: '/audio/spotify/browse', text: '' }
-		]
 	}
 
 	public render(): JSX.Element {
+
+
 		return (
 			<div className="container-fluid">
 				<Switch>
-					<Route exact path="/audio" render={ () => <Menu rowLength={3} items={ this.menuItems } /> } />
-					<Route path="/audio/spotify" component={ (props) => {
-						return (<List items={ [{ route: '', text: '' }] } />);
-					} } />
+					<Route exact path={ this.props.match.url } render={ () => <Redirect to={ this.redirectPath } /> } />
+					<Route path={ `${this.props.match.url}/sources` } component={ AudioSourceBrowser } />
 				</Switch>
 			</div>
 		);
 	}
 }
 
-const mapStateToProps = (state: AppState): AudioViewProps => ({});
-const mapDispatchToProps = (dispatch: Dispatch<Action>): AudioViewProps => ({});
+const mapStateToProps = (state: AppState): Props => ({ });
+const mapDispatchToProps = (dispatch: Dispatch<Action>): Props => ({ });
 
 export default connect(
 	mapStateToProps,

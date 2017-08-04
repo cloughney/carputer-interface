@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Action, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { BrowserRouter as Router, Switch, Route, Link, withRouter } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, Link, RouteComponentProps, withRouter } from 'react-router-dom';
 
 import './styles/layout.scss';
 
