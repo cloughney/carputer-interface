@@ -4,16 +4,12 @@ import { RouteComponentProps, Switch, Route } from 'react-router-dom';
 import Menu, { MenuItem } from 'components/Menu';
 import List, { ListItem } from 'components/List';
 
-type Props = { };
-
 type State = {
 	sources: any[];
 };
 
-type InjectedProps = Props & RouteComponentProps<void>;
-
-export default class AudioSourceBrowser extends React.Component<InjectedProps, State> {
-	public constructor(props: InjectedProps) {
+export default class AudioSourceBrowser extends React.Component<RouteComponentProps<any>, State> {
+	public constructor(props: RouteComponentProps<any>) {
 		super(props);
 		this.state = {
 			sources: []
@@ -21,18 +17,18 @@ export default class AudioSourceBrowser extends React.Component<InjectedProps, S
 	}
 
 	public async componentWillMount(): Promise<void> {
-		const sources = await this.getSources();
-		const entities = await this.getEntities('spotify');
-		this.setState({ sources	});
+		const response = await fetch('http://localhost:3000/api/audio/sources');
+		const data = await response.json();
+		this.setState({ sources: data.sources });
 	}
 
 	public render(): JSX.Element {
 		const menuItems = this.state.sources.map(source => ({
 			route: `/audio/sources/${source.slug}/browse`,
-			className: source.image
+			className: source.slug
 		}));
 
-		const entityItems = this
+		//const entityItems = this
 
 		return (
 			<Switch>

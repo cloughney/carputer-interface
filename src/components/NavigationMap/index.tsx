@@ -6,7 +6,7 @@ interface NavigationMapProps { }
 interface NavigationMapState { }
 
 export default class NavigationMap extends React.Component<NavigationMapProps, NavigationMapState> {
-	private mapContainer: HTMLDivElement;
+	private mapContainer: HTMLDivElement | null;
 	private locationWatcherHandle: number;
 
 	public constructor(props: NavigationMap) {
