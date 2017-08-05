@@ -4,10 +4,11 @@ import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router } from 'react-router-dom';
 
-import AppState from 'state';
+import { AppState } from 'state';
+import { appReducer } from './reducers'
 import Layout from './views/Layout';
 
-const stateStore = createStore<AppState>((state, action) => state);
+const stateStore = createStore<AppState>(appReducer);
 
 ReactDOM.render(
 	<Provider store={stateStore}>

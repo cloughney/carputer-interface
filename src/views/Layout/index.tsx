@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import './styles/layout.scss';
 
-import AppState from 'state';
+import { AppState } from 'state';
 import TopNavigation from './components/TopNavigation';
 import HomeView from './views/Home';
 import AudioView from './views/Audio';

@@ -1,15 +1,27 @@
 import * as React from 'react';
 import { RouteComponentProps, Switch, Route } from 'react-router-dom';
 
+import { AudioSource } from 'state/audio';
 import Menu, { MenuItem } from 'components/Menu';
-import List, { ListItem } from 'components/List';
+import ItemBrowser from './components/ItemBrowser';
 
-type State = {
-	sources: any[];
+type Props = {
+	selectedSource: AudioSource;
+	onSourceSelect: (source: AudioSource) => void;
 };
 
-export default class AudioSourceBrowser extends React.Component<RouteComponentProps<any>, State> {
-	public constructor(props: RouteComponentProps<any>) {
+type RouteParams = {
+	source: string;
+};
+
+type RouteProps = Props & RouteComponentProps<any>;
+
+type State = {
+	sources: AudioSource[];
+};
+
+export default class AudioSourceBrowser extends React.Component<RouteProps, State> {
+	public constructor(props: RouteProps) {
 		super(props);
 		this.state = {
 			sources: []
@@ -17,9 +29,31 @@ export default class AudioSourceBrowser extends React.Component<RouteComponentPr
 	}
 
 	public async componentWillMount(): Promise<void> {
-		const response = await fetch('http://localhost:3000/api/audio/sources');
+		if (this.props.selectedSource) {
+			return;
+		}
+
+		const response = await fetch('/api/audio/sources');
 		const data = await response.json();
-		this.setState({ sources: data.sources });
+
+		let selectAudioSource: AudioSource;
+		const sources: AudioSource[] = [];
+		data.sources.forEach((s: any) => {
+			const source: AudioSource = {
+				slug: s.slug,
+				title: s.title,
+				href: s.href
+			};
+
+			if (this.props.match.params.source === source.slug) {
+				selectAudioSource = source;
+				this.props.onSourceSelect(source);
+			}
+
+			sources.push(source);
+		});
+
+		this.setState({ sources });
 	}
 
 	public render(): JSX.Element {
@@ -28,28 +62,11 @@ export default class AudioSourceBrowser extends React.Component<RouteComponentPr
 			className: source.slug
 		}));
 
-		//const entityItems = this
-
 		return (
 			<Switch>
 				<Route exact path={ this.props.match.url } render={ () => <Menu items={ menuItems } /> } />
-				<Route
-					exact path={ `${this.props.match.url}/:source/browse` }
-					render={ () => <List items={ [{ text: 'Playlists', route: `${this.props.match.url}/:source/browse/playlists` }] } /> } />
+				<Route exact path={ `${this.props.match.url}/:source/browse` } render={ () => <ItemBrowser href={ this.props.selectedSource.href } /> } />
 			</Switch>
 		);
-	}
-
-	private getSources(): Promise<any[]> {
-		return new Promise<any[]>(resolve => resolve([
-			{ id: 1, slug: 'spotify', title: 'Spotify', image: 'spotify' },
-			{ id: 2, slug: 'podcast', title: 'Podcasts', image: 'podcast' }
-		]));
-	}
-
-	private getEntities(source: string): Promise<any[]> {
-		return new Promise<any[]>(resolve => resolve([
-			{ id: 1, slug: 'playlists', title: 'Playlists' }
-		]));
 	}
 }

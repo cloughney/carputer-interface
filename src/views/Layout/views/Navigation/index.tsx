@@ -3,7 +3,7 @@ import { Action, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
-import AppState from 'state';
+import { AppState } from 'state';
 import NavigationMap from '../../../../components/NavigationMap';
 
 interface NavigationViewProps { }
