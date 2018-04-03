@@ -6,7 +6,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 
 import { AppState } from 'state';
 import { appReducer } from './reducers'
-import Layout from './views/Layout';
+import Layout from './layout';
 
 const stateStore = createStore<AppState>(appReducer);
 

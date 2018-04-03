@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import './styles/home.scss';
 
 import { AppState } from 'state';
-import Menu, { MenuItem } from '../../../../components/Menu';
+import Menu, { MenuItem } from '../../components/Menu';
 
 const HomeView: React.SFC<{}> = (props) => {
 	const menuItems = [

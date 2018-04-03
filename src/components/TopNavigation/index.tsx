@@ -4,7 +4,7 @@ import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
 type Props = { };
 type InjectedProps = Props & RouteComponentProps<void>;
 
-const TopNavigation: React.SFC<Props | InjectedProps> = ({ location, history }: InjectedProps) => {
+const TopNavigation: React.SFC<InjectedProps> = ({ location, history }: InjectedProps) => {
 	const isHome = location.pathname === '/';
 
 	const onBackClick = (e: React.MouseEvent<HTMLAnchorElement>): void => {

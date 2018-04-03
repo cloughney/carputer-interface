@@ -11,6 +11,9 @@ export default class NavigationMap extends React.Component<NavigationMapProps, N
 
 	public constructor(props: NavigationMap) {
 		super(props);
+
+		this.mapContainer = null;
+		this.locationWatcherHandle = -1;
 	}
 
 	public componentDidMount(): void {
