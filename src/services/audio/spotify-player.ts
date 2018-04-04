@@ -1,27 +1,27 @@
-interface IAudioService {
-    initialize(): Promise<void>;
-    dispose(): Promise<void>;
+import { IAudioPlayer, Track } from './audio-player';
 
-    play(): Promise<void>;
-    pause(): Promise<void>;
-    nextTrack(): Promise<void>;
-    previousTrack(): Promise<void>;
+class SpotifyService {
+    
 }
 
-class SpotifyService implements IAudioService {
-    private libElement: HTMLScriptElement | undefined;
-    private player: Spotify.SpotifyPlayer | undefined;
+export class SpotifyPlayer implements IAudioPlayer {
+    private libElement: HTMLScriptElement | null;
+    private player: Spotify.SpotifyPlayer | null;
+    private playerId: string | null;
+    private playerState: Spotify.PlaybackState | null;
 
     public constructor() {
-        this.libElement = undefined;
-        this.player = undefined;
+        this.libElement = null;
+        this.player = null;
+        this.playerId = null;
+        this.playerState = null;
     }
 
     public initialize(): Promise<void> {
         return new Promise((resolve, reject) => {
             window.onSpotifyWebPlaybackSDKReady = async () => {
                 this.player = new Spotify.Player({
-                    name: 'krikCar',
+                    name: 'krikCar', //TODO add to configuration
                     getOAuthToken(setToken) { setToken(''); }
                 });
 
@@ -29,29 +29,26 @@ class SpotifyService implements IAudioService {
                 this.player.addListener('authentication_error', ({ message }) => { reject(new Error(message)); });
                 this.player.addListener('account_error', ({ message }) => { reject(new Error(message)); });
                 this.player.addListener('playback_error', ({ message }) => { reject(new Error(message)); }); // FIXME This should probably be handled internally.
-                
-                this.player.addListener('player_state_changed', state => { console.log(state); });
+
+                this.player.addListener('player_state_changed', state => { this.playerState = state; console.log(state); });
 
                 this.player.addListener('ready', ({ device_id }) => {
-                    console.log('Ready with Device ID', device_id);
+                    this.playerId = device_id;
                     resolve();
                 });
 
-                const isConnected = await this.player.connect();
-                if (isConnected) {
-                    reject(new Error('Failed to connect to Spotify.'));
-                }
+                await this.player.connect();
             };
 
             this.libElement = document.createElement('script');
-            this.libElement.src = 'https://sdk.scdn.co/spotify-player.js'; //TODO add to configuration
+            this.libElement.setAttribute('src', 'https://sdk.scdn.co/spotify-player.js'); //TODO add to configuration
 
             window.document.body.appendChild(this.libElement);
         });
     }
 
     public async dispose(): Promise<void> {
-        if (this.libElement === undefined || this.player === undefined) {
+        if (this.libElement === null || this.player === null) {
             return;
         }
 
@@ -65,12 +62,32 @@ class SpotifyService implements IAudioService {
 
         window.document.body.removeChild(this.libElement);
 
-        this.player = undefined;
-        this.libElement = undefined;
+        this.playerState = null;
+        this.playerId = null;
+        this.player = null;
+        this.libElement = null;
     }
 
-    public async play(): Promise<void> { }
-    public async pause(): Promise<void> { }
+    public async setTracks(tracks: Track[]): Promise<void> {
+
+    }
+
+    public async play(): Promise<void> {
+        if (this.player === null) {
+            return;
+        }
+
+        await this.player.resume();
+    }
+
+    public async pause(): Promise<void> {
+        if (this.player === null) {
+            return;
+        }
+
+        await this.player.pause();
+    }
+
     public async nextTrack(): Promise<void> { }
     public async previousTrack(): Promise<void> { }
 }

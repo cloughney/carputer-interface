@@ -8,5 +8,9 @@ export const spotify: IAudioPlayerSource = {
 }
 
 const AudioPlayer: React.SFC = props => {
-	return (<div />);
+	return (
+		<div>
+			
+		</div>
+	);
 }
