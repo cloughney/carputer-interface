@@ -29,8 +29,8 @@ const SpotifyConnect: React.SFC<SpotifyConnect.Props> = ({ location }) => {
 	}
 
 	// TODO if no hash make websocket request
-	// wsClient.request('authentication.spotify.authorize', { redirect_uri, scope });
-	// this should return { client_id, state }
+	// wsClient.request('authentication.spotify.authorize', { scope });
+	// this should return { client_id, state, redirect_uri }
 
 	const params: { [key: string]: string } = {
 		'response_type': 'code',

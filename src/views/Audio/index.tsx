@@ -7,7 +7,7 @@ import './audio.scss';
 
 import { AppState } from 'state';
 import AudioPlayer from 'components/AudioPlayer';
-import SpotifyConnect from 'components/SpotifyConnect';
+import SpotifyConnect from './components/SpotifyConnect';
 
 export namespace AudioView {
 	export type Props = RouteComponentProps<void> & { };
