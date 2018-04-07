@@ -8,6 +8,7 @@ import './styles/layout.scss';
 import { AppState } from 'state';
 import TopNavigation from './components/TopNavigation'
 import HomeView from './views/Home';
+import AudioView from './views/Audio';
 import NavigationView from './views/Navigation';
 
 const Layout: React.SFC<{}> = () => {
@@ -18,6 +19,7 @@ const Layout: React.SFC<{}> = () => {
 				<div className="app-content">
 					<Switch>
 						<Route exact path="/" component={ HomeView } />
+						<Route path="/audio" component={ AudioView } />
 						<Route path="/navigation" component={ NavigationView } />
 					</Switch>
 				</div>

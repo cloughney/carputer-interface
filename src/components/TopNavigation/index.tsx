@@ -1,10 +1,12 @@
 import * as React from 'react';
 import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
 
-type Props = { };
-type InjectedProps = Props & RouteComponentProps<void>;
+export namespace TopNavigation {
+	export type Props = { };
+	export type InjectedProps = Props & RouteComponentProps<void>;
+}
 
-const TopNavigation: React.SFC<InjectedProps> = ({ location, history }: InjectedProps) => {
+const TopNavigation: React.SFC<TopNavigation.InjectedProps> = ({ location, history }) => {
 	const isHome = location.pathname === '/';
 
 	const onBackClick = (e: React.MouseEvent<HTMLAnchorElement>): void => {
