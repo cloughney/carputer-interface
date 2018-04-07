@@ -1,3 +1,5 @@
+import * as SpotifyWebApi from 'spotify-web-api-js';
+
 import { IAudioPlayer, Track } from './audio-player';
 
 export class SpotifyPlayer implements IAudioPlayer {
@@ -30,6 +32,10 @@ export class SpotifyPlayer implements IAudioPlayer {
 
                 this.player.addListener('ready', ({ device_id }) => {
                     this.playerId = device_id;
+
+                    var s = new SpotifyWebApi();
+                    s.setAccessToken('');
+
                     resolve();
                 });
 
