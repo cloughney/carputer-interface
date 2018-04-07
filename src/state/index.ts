@@ -9,5 +9,6 @@ export interface AudioState {
 }
 
 export type AppState = Readonly<{
+	isHubConnected: boolean;
 	audio: AudioState | undefined;
 }>;

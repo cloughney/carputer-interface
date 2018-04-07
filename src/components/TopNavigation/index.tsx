@@ -2,11 +2,12 @@ import * as React from 'react';
 import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
 
 export namespace TopNavigation {
-	export type Props = { };
-	export type InjectedProps = Props & RouteComponentProps<void>;
+	export type Props = RouteComponentProps<void> & {
+		isHubConnected: boolean;
+	};
 }
 
-const TopNavigation: React.SFC<TopNavigation.InjectedProps> = ({ location, history }) => {
+const TopNavigation: React.SFC<TopNavigation.Props> = ({ location, history, isHubConnected }) => {
 	const isHome = location.pathname === '/';
 
 	const onBackClick = (e: React.MouseEvent<HTMLAnchorElement>): void => {
@@ -27,7 +28,7 @@ const TopNavigation: React.SFC<TopNavigation.InjectedProps> = ({ location, histo
 				</li>
 				<li>
 					<Link to="/">
-						<span className="glyphicon glyphicon-home"></span> Home
+						<span className="glyphicon glyphicon-home" style={ isHubConnected ? { color: 'green' } : {} }></span> Home
 					</Link>
 				</li>
 			</ul>

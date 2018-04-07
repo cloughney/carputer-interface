@@ -11,11 +11,17 @@ import HomeView from './views/Home';
 import AudioView from './views/Audio';
 import NavigationView from './views/Navigation';
 
-const Layout: React.SFC<{}> = () => {
+export namespace Layout {
+	export type Props = {
+		isHubConnected: boolean;
+	}
+}
+
+const Layout: React.SFC<Layout.Props> = ({ isHubConnected }) => {
 	return (
 		<Router>
 			<div className="app-container">
-				<TopNavigation />
+				<TopNavigation isHubConnected={isHubConnected} />
 				<div className="app-content">
 					<Switch>
 						<Route exact path="/" component={ HomeView } />
@@ -28,7 +34,10 @@ const Layout: React.SFC<{}> = () => {
 	);
 }
 
-const mapStateToProps = (state: AppState) => ({ });
+const mapStateToProps = (state: AppState) => ({
+	isHubConnected: state.isHubConnected
+});
+
 const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({ });
 
 export default connect(

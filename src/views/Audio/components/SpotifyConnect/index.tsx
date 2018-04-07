@@ -1,21 +1,18 @@
 import * as React from 'react';
 import { RouteComponentProps, Redirect, withRouter } from 'react-router';
 
+import { client } from 'services/hub';
+
 export namespace SpotifyConnect {
     export type Props = RouteComponentProps<void> & { };
 }
 
 const SpotifyConnect: React.SFC<SpotifyConnect.Props> = ({ location }) => {
-	let refreshToken = window.localStorage.getItem('spotify.refreshToken');
-	if (refreshToken !== null) {
-		//TODO refresh token with websocket call
-		// wsClient.request('authentication.spotify.refresh', { redirect_uri, scope, refresh_token });
-	}
-
+	// First, check if this is a successful authentication reply.
 	const responseParams = new URLSearchParams(location.search);
 	const accessToken = responseParams.get('access_token');
 	const tokenExpiresIn = responseParams.get('expires_in');
-	refreshToken = responseParams.get('refresh_token');
+	let refreshToken = responseParams.get('refresh_token');
 
 	if (accessToken !== null && refreshToken !== null && tokenExpiresIn !== null) {
 		window.localStorage.setItem('spotify.accessToken', accessToken);
@@ -26,6 +23,14 @@ const SpotifyConnect: React.SFC<SpotifyConnect.Props> = ({ location }) => {
 		window.localStorage.setItem('spotify.accessTokenExpiration', accessTokenExpiration.toString());
 
 		return <Redirect to="/audio" />;
+	}
+
+	// Then check if we have a refresh token.
+	refreshToken = window.localStorage.getItem('spotify.refreshToken');
+	if (refreshToken !== null) {
+		//TODO refresh token with websocket call		
+		//const response = await client.request('oauth_module', 'spotify.authentication.refresh_access_token', { refreshToken });
+		
 	}
 
 	// TODO if no hash make websocket request

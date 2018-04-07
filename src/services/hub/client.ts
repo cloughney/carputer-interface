@@ -1,25 +1,53 @@
 const nullSocketError = 'The client must be connected to perform this action.';
 
+type ClientEventMap = {
+    'ready': void;
+    'error': string;
+    [eventType: string]: any;
+};
+
 type EventListenerMap = { [EventType in keyof ClientEventMap]: (e: ClientEventMap[EventType]) => void };
 type MultiEventListenerMap = { [T in keyof EventListenerMap]: EventListenerMap[T][] };
 
-type ClientEventMap = {
-    'ready': Event;
-    'error': Event;
-    [eventType: string]: Event;
-};
+type DestinationMessageType = 'request' | 'response' | 'error';
+type MessageType = DestinationMessageType | 'event';
 
 export interface ClientConfiguration {
     uri: string;
     protocol: string;
 }
 
-export interface Message {
-    type: string;
+export interface RequestMessage {
+    type: 'request';
+    origin?: string;
+    destination: string;
+    name: string;
     data: { [key: string]: any };
 }
 
-export type RequestHandler = (message: Message) => Promise<Message>;
+export interface ResponseMessage {
+    type: 'response';
+    destination: string;
+    request: RequestMessage;
+    data: { [key: string]: any };
+}
+
+export interface ErrorMessage {
+    type: 'error';
+    destination: string;
+    request: RequestMessage;
+    data: { error: string };
+}
+
+export interface EventMessage {
+    type: 'event';
+    name: string;
+    data: { [key: string]: any };
+}
+
+export type Message = RequestMessage | ResponseMessage | ErrorMessage | EventMessage;
+
+export type RequestHandler = (message: RequestMessage) => Promise<any>;
 
 export class ClientNotConnectedError extends Error { }
 
@@ -58,6 +86,17 @@ export class Client {
     public addEventListener<T extends keyof EventListenerMap>(type: T, listener: EventListenerMap[T]): void {
         this.eventListeners[type].push(listener);
     }
+    
+    /** Remove a listener from the specified event. */
+    public removeEventListener<T extends keyof EventListenerMap>(type: T, listener: EventListenerMap[T]): void {
+        const listeners = this.eventListeners[type];
+        if (listeners === undefined) {
+            return;
+        }
+
+        const listenerIndex = listeners.indexOf(listener);
+        listeners.splice(listenerIndex, 1);
+    }
 
     /** Connects the client to the configured endpoint. */
 	public connect(): void {
@@ -66,8 +105,8 @@ export class Client {
         }
 
 		this.socket = new WebSocket(this.config.uri, this.config.protocol);
-        this.socket.addEventListener('open', e => this.eventListeners.ready.forEach(listener => listener(e)));
-        this.socket.addEventListener('error', e => this.eventListeners.error.forEach(listener => listener(e)));
+        this.socket.addEventListener('open', e => this.eventListeners.ready.forEach(listener => listener(undefined))); //TODO fix the client event map
+        this.socket.addEventListener('error', e => this.eventListeners.error.forEach(listener => listener((<ErrorEvent>e).message))); //TODO is this right?
         this.socket.addEventListener('message', this.onMessage.bind(this));
 	}
 
@@ -81,9 +120,22 @@ export class Client {
 		this.socket = null;
 	}
 
-    /** Post an event to be broadcast. */
-	public post(type: string, payload?: any): void {
-		this.sendMessage('event', type, payload);
+    /** Publish an event to be broadcast. */
+	public publish(type: string, payload?: any): void {
+		if (this.socket === null) {
+			throw new ClientNotConnectedError(nullSocketError);
+        }
+        
+		if (this.socket.readyState !== WebSocket.OPEN) {
+			throw new ClientNotConnectedError(`The client is not in a valid state to perform this action. (state: ${this.socket.readyState})`);
+        }
+
+        this.socket.send(JSON.stringify({
+            type: 'event',
+            origin: this.config.protocol,
+            name: type,
+            data: payload
+        }));
     }
 
     /** Send a request to the specified destination. */
@@ -93,10 +145,14 @@ export class Client {
         const requestPromise = new Promise<T>((resolve, reject) => {
             this.requestResolutionMap.set(requestId, resolve);
 
-            this.sendMessage('request', type, {
-                _requestId: requestId,
+            this.sendMessage({
+                type: 'request', 
                 destination,
-                ...payload
+                name: type,
+                data: {
+                    _requestId: requestId,
+                    ...payload
+                }
             });
 
             setTimeout(() => {
@@ -114,7 +170,7 @@ export class Client {
     private onMessage(e: MessageEvent): void {
         //TODO message validation
 
-        const message = e.data;
+        const message = e.data as Message;
         switch (message.type) {
             case 'event':
                 this.onEventReceived(message);
@@ -123,40 +179,59 @@ export class Client {
                 this.onRequestReceived(message);
                 break;
             case 'response':
+            case 'error':
                 this.onResponseReceived(message);
                 break;
             default:
-                throw new Error(`Invalid message type received: '${message.type}'.`);
+                throw new Error(`Invalid message type received: '${(<any>message).type}'.`);
         }
     }
 
-    private onEventReceived(message: any): void {
+    private onEventReceived(message: EventMessage): void {
         const listeners = this.eventListeners[message.name];
         if (typeof listeners === 'object' && listeners.length !== undefined) {
             listeners.forEach(x => x(message));
         }
     }
 
-    private async onRequestReceived(message: any): Promise<any> {
+    private async onRequestReceived(message: RequestMessage): Promise<any> {
         if (this.onRequestHandler === null) {
             console.warn('A request was received but no onRequest handler has been set.');
             return;
         }
 
-        const response = await this.onRequestHandler(message);
-        this.sendMessage('response', message.name, { ...response, request: message });
+        if (message.origin === undefined) {
+            throw new Error('An invalid request was received.');
+        }
+
+        try {
+            const response = await this.onRequestHandler(message);
+            this.sendMessage({
+                type: 'response',
+                destination: message.origin,
+                request: message,
+                data: { ...response, request: message }
+            });
+        } catch (err) {
+            this.sendMessage({
+                type: 'error',
+                destination: message.origin,
+                request: message,
+                data: { error: err.message }
+            });
+        }
     }
 
-    private onResponseReceived(message: any): void {
-        const requestId = message.request._requestId;
+    private onResponseReceived(message: ResponseMessage | ErrorMessage): void {
+        const requestId = message.request.data._requestId;
         const resolveResponse = this.requestResolutionMap.get(requestId);
 
         if (typeof resolveResponse !== 'function') {
             return;
         }
 
-        resolveResponse(message);
-        this.requestResolutionMap.delete(message._requestId);
+        resolveResponse(message.data);
+        this.requestResolutionMap.delete(requestId);
     }
 
     private generateRequestId(): string {
@@ -165,7 +240,7 @@ export class Client {
         return Math.ceil(now * modifier).toString(); // this should be unique enough for this purpose
     }
 
-    private sendMessage(type: 'event' | 'request' | 'response', name: string, payload: any): void {
+    private sendMessage(message: Message): void {
         if (this.socket === null) {
 			throw new ClientNotConnectedError(nullSocketError);
         }
@@ -174,6 +249,6 @@ export class Client {
 			throw new ClientNotConnectedError(`The client is not in a valid state to perform this action. (state: ${this.socket.readyState})`);
         }
         
-		this.socket.send(JSON.stringify({ type, name, ...payload }));
+		this.socket.send(JSON.stringify(message));
     }
 }
