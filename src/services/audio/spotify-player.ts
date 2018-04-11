@@ -1,5 +1,3 @@
-import * as SpotifyWebApi from 'spotify-web-api-js';
-
 import { IAudioPlayer, Track } from './audio-player';
 
 export class SpotifyPlayer implements IAudioPlayer {
