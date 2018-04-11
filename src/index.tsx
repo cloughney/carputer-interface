@@ -11,7 +11,9 @@ import Layout from './layout';
 
 const stateStore = createStore<AppState>(appReducer);
 
-client.addEventListener('ready', () => { stateStore.dispatch({ type: 'HUB_CONNECT' }); });
+client.addEventListener('connect', () => { stateStore.dispatch({ type: 'HUB_CONNECT' }); });
+client.addEventListener('disconnect', () => { stateStore.dispatch({ type: 'HUB_DISCONNECT' }); });
+
 client.connect();
 
 ReactDOM.render(

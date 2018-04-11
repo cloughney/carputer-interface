@@ -1,8 +1,6 @@
 const nullSocketError = 'The client must be connected to perform this action.';
 
 type ClientEventMap = {
-    'ready': void;
-    'error': string;
     [eventType: string]: any;
 };
 
@@ -62,10 +60,7 @@ export class Client {
         this.config = config;
         this.requestResolutionMap = new Map();
 
-        this.eventListeners = {
-            'ready': [],
-            'error': []
-        };
+        this.eventListeners = {};
 
         this.socket = null;
         this.onRequestHandler = null;
@@ -73,7 +68,7 @@ export class Client {
 
     public get isConnected(): boolean { return this.socket !== null && this.socket.readyState === WebSocket.OPEN; }
 
-    /** A handler for incoming requests. */
+    /** Sets a handler for incoming requests. */
     public set onRequest(handler: RequestHandler) {
         if (this.onRequestHandler !== null) {
             throw new Error('The onRequest handler has already been assigned.');
@@ -84,10 +79,12 @@ export class Client {
     
     /** Adds a listener to the specified event. */
     public addEventListener<T extends keyof EventListenerMap>(type: T, listener: EventListenerMap[T]): void {
-        this.eventListeners[type].push(listener);
+        const listeners = this.eventListeners[type] || [];
+        listeners.push(listener);
+        this.eventListeners[type] = listeners;
     }
     
-    /** Remove a listener from the specified event. */
+    /** Removes a listener from the specified event. */
     public removeEventListener<T extends keyof EventListenerMap>(type: T, listener: EventListenerMap[T]): void {
         const listeners = this.eventListeners[type];
         if (listeners === undefined) {
@@ -105,9 +102,10 @@ export class Client {
         }
 
 		this.socket = new WebSocket(this.config.uri, this.config.protocol);
-        this.socket.addEventListener('open', e => this.eventListeners.ready.forEach(listener => listener(undefined))); //TODO fix the client event map
-        this.socket.addEventListener('error', e => this.eventListeners.error.forEach(listener => listener((<ErrorEvent>e).message))); //TODO is this right?
-        this.socket.addEventListener('message', this.onMessage.bind(this));
+        this.socket.addEventListener('open', this.onSocketOpen);
+        this.socket.addEventListener('close', this.onSocketClose);
+        this.socket.addEventListener('error', this.onSocketError);
+        this.socket.addEventListener('message', this.onSocketMessage);
 	}
 
     /** Disconnects the client. */
@@ -116,11 +114,19 @@ export class Client {
 			throw new ClientNotConnectedError(nullSocketError);
         }
 
-		this.socket.close();
+        this.socket.removeEventListener('open', this.onSocketOpen);
+        this.socket.removeEventListener('close', this.onSocketClose);
+        this.socket.removeEventListener('error', this.onSocketError);
+        this.socket.removeEventListener('message', this.onSocketMessage);
+
+        if (this.socket.readyState !== WebSocket.CLOSED) {
+            this.socket.close();
+        }
+
 		this.socket = null;
 	}
 
-    /** Publish an event to be broadcast. */
+    /** Publishes an event to be broadcast. */
 	public publish(type: string, payload?: any): void {
 		if (this.socket === null) {
 			throw new ClientNotConnectedError(nullSocketError);
@@ -138,7 +144,7 @@ export class Client {
         }));
     }
 
-    /** Send a request to the specified destination. */
+    /** Sends a request to the specified destination and awaits a response. */
     public async request<T = any>(destination: string, type: string, payload?: any): Promise<T> {
         const requestId = this.generateRequestId();
 
@@ -170,7 +176,7 @@ export class Client {
     private onMessage(e: MessageEvent): void {
         //TODO message validation
 
-        const message = e.data as Message;
+        const message = JSON.parse(e.data) as Message;
         switch (message.type) {
             case 'event':
                 this.onEventReceived(message);
@@ -251,4 +257,34 @@ export class Client {
         
 		this.socket.send(JSON.stringify(message));
     }
+
+    private onSocketOpen = (): void => {
+        if (this.eventListeners['connect'] !== undefined) {
+            this.eventListeners['connect'].forEach(listener => listener(undefined)); //TODO fix the client event map to get rid on the undefined here
+        }
+    }
+    
+    private onSocketError = (e: Event): void => {
+        if (this.eventListeners['error'] !== undefined) {
+            this.eventListeners['error'].forEach(listener => listener((<ErrorEvent>e).message));
+        }
+    }
+
+    private onSocketMessage = (e: MessageEvent): void => this.onMessage(e);
+
+    private onSocketClose = (): void => {
+        if (this.eventListeners['disconnect'] !== undefined) {
+            this.eventListeners['disconnect'].forEach(listener => listener(undefined));
+        }
+
+        const reconnectInterval = setInterval(() => {
+            if (this.isConnected) {
+                clearInterval(reconnectInterval);
+                return;
+            }
+
+            this.disconnect();
+            this.connect();
+        }, 5000);
+    };
 }

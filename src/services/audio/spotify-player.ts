@@ -32,10 +32,6 @@ export class SpotifyPlayer implements IAudioPlayer {
 
                 this.player.addListener('ready', ({ device_id }) => {
                     this.playerId = device_id;
-
-                    var s = new SpotifyWebApi();
-                    s.setAccessToken('');
-
                     resolve();
                 });
 

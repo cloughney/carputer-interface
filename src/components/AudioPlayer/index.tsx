@@ -9,14 +9,13 @@ export namespace AudioPlayer {
 
 const AudioPlayer: React.SFC<AudioPlayer.Props> = ({ match }) => {
 	const accessToken = window.localStorage.getItem('spotify.accessToken');
-	const accessTokenExpiration = window.localStorage.getItem('spotify.accessTokenExpiration');
-	const isTokenExpired = (accessTokenExpiration !== null && parseInt(accessTokenExpiration) <= new Date().getTime());
-
-	if (accessToken === null || isTokenExpired) {
+	if (accessToken === null) {
 		return <Redirect to="/audio/spotify/connect" />;
 	}
 
 	var player = new SpotifyPlayer();
+	player.initialize();
+	
 
 	return (
 		<div>

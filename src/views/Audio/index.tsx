@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Action, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { Route, RouteComponentProps, withRouter } from 'react-router-dom';
+import { Route, RouteComponentProps, Switch, withRouter } from 'react-router-dom';
 
 import './audio.scss';
 
@@ -16,8 +16,10 @@ export namespace AudioView {
 const AudioView: React.SFC<AudioView.Props> = ({ match }) => {
 	return (
 		<div className="container-fluid">
-			<AudioPlayer />
-			<Route path={`${match.url}/spotify/connect`} component={ SpotifyConnect } />
+			<Switch>
+				<Route exact path={ match.url } component={ AudioPlayer } />
+				<Route path={ `${match.url}/spotify/connect` } component={ SpotifyConnect } />
+			</Switch>
 		</div>
 	);
 }
