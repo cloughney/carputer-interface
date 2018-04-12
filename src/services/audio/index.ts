@@ -19,6 +19,12 @@ export interface Track {
     artists: Artist[];
 }
 
+export interface Category {
+    id: string;
+    name: string;
+    image: string;
+}
+
 export interface IAudioPlayer {
     initialize(): Promise<void>;
     dispose(): Promise<void>;
@@ -32,7 +38,7 @@ export interface IAudioPlayer {
 }
 
 export interface ILibraryBrowser {
-
+    getCategories(): Promise<Category[]>;
 }
 
 export interface IAudioSource {

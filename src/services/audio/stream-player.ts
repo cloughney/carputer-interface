@@ -1,4 +1,4 @@
-import { IAudioPlayer, Track } from './audio-player';
+import { IAudioPlayer, Track } from '.';
 
 const uninitializedPlayerError = 'The player must be initialized before performing this action.';
 

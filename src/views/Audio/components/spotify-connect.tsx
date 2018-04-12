@@ -27,7 +27,7 @@ enum AuthState {
 }
 
 export namespace SpotifyConnect {
-	export type Props = RouteComponentProps<{ search?: string }> & {
+	export type Props = RouteComponentProps<void> & {
 		isHubConnected: boolean;
 	};
 
@@ -90,14 +90,14 @@ export default class SpotifyConnect extends React.Component<SpotifyConnect.Props
 	}
 
 	private getResponseFromQuery(): HashResponse {
-		const responseParams = new URLSearchParams(this.props.match.params.search);
+		const responseParams = new URLSearchParams(this.props.location.search);
 
 		const error = responseParams.get('error');
 		if (error) { 
 			return { error };
 		}
 		
-		const accessToken = responseParams.get('access_token');
+		const accessToken = responseParams.get('accessToken');
 		return accessToken !== null ? { accessToken } : null;
 	}
 
@@ -115,7 +115,7 @@ export default class SpotifyConnect extends React.Component<SpotifyConnect.Props
 		}
 		
 		// Start the authentication process.
-		window.location.assign(`http://h.krik.co:9000/spotify/login?redirect_url=${window.location.href}`);
+		window.location.assign(`http://h.krik.co:9000/spotify/login?redirect_url=${ encodeURIComponent(window.location.href) }`);
 	}
 
 	private setAccessToken(accessToken: string): void {
