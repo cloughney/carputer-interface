@@ -1,4 +1,4 @@
-import { IAudioPlayer, Track } from './audio-player';
+import { IAudioPlayer, Track } from '../';
 
 export class SpotifyPlayer implements IAudioPlayer {
     private libElement: HTMLScriptElement | null;

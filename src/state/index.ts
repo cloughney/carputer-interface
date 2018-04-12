@@ -1,14 +1,10 @@
-export interface AudioSource {
-	slug: string;
-	title: string;
-	href: string;
-}
+import { IAudioSource } from 'services/audio';
 
 export interface AudioState {
-	selectedSource: AudioSource|undefined;
+	selectedSource: string;
 }
 
 export type AppState = Readonly<{
 	isHubConnected: boolean;
-	audio: AudioState | undefined;
+	audio: AudioState;
 }>;

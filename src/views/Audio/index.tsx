@@ -20,7 +20,7 @@ const AudioView: React.SFC<AudioView.Props> = ({ match, isHubConnected }) => {
 		<div className="container-fluid">
 			<Switch>
 				<Route exact path={ match.url } component={ AudioPlayer } />
-				<Route path={ `${match.url}/spotify/connect` } render={ props => <SpotifyConnect isHubConnected={ isHubConnected } /> } />
+				<Route path={ `${match.url}/spotify/connect/:search?` } render={ props => <SpotifyConnect isHubConnected={ isHubConnected } { ...props } /> } />
 			</Switch>
 		</div>
 	);

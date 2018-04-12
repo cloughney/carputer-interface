@@ -2,7 +2,7 @@ import * as React from 'react';
 import { RouteComponentProps, Redirect, withRouter } from 'react-router';
 
 import { client } from 'services/hub';
-import { api } from 'services/audio/spotify-api';
+import { api } from 'services/audio/spotify';
 
 type ErrorHashResponse = { error: string };
 type SuccessHashResponse = { accessToken: string; };
@@ -27,7 +27,7 @@ enum AuthState {
 }
 
 export namespace SpotifyConnect {
-	export type Props = {
+	export type Props = RouteComponentProps<{ search?: string }> & {
 		isHubConnected: boolean;
 	};
 
@@ -90,7 +90,7 @@ export default class SpotifyConnect extends React.Component<SpotifyConnect.Props
 	}
 
 	private getResponseFromQuery(): HashResponse {
-		const responseParams = new URLSearchParams(location.search);
+		const responseParams = new URLSearchParams(this.props.match.params.search);
 
 		const error = responseParams.get('error');
 		if (error) { 
@@ -98,12 +98,7 @@ export default class SpotifyConnect extends React.Component<SpotifyConnect.Props
 		}
 		
 		const accessToken = responseParams.get('access_token');
-
-		if (accessToken === null) {
-			return null;
-		}
-
-		return { accessToken };
+		return accessToken !== null ? { accessToken } : null;
 	}
 
 	private isErrorResponse(response: HashResponse): response is ErrorHashResponse {

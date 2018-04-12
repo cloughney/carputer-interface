@@ -1,29 +1,24 @@
 import * as React from 'react';
 import { RouteComponentProps, Redirect, withRouter } from 'react-router';
 
-import { api } from 'services/audio/spotify-api';
-import { SpotifyPlayer } from 'services/audio/spotify-player';
+import { sources } from 'services/audio';
 
 export namespace AudioPlayer {
-	export type Props = RouteComponentProps<void> & { };
+	export type Props = RouteComponentProps<void> & {
+		selectedSource: string;
+	};
 }
 
-const AudioPlayer: React.SFC<AudioPlayer.Props> = ({ match }) => {
-	const accessToken = api.getAccessToken();
-	if (accessToken === null) {
-		return <Redirect to="/audio/spotify/connect" />;
+export default class AudioPlayer extends React.Component<AudioPlayer.Props> {
+	public componentDidMount(): void {
+		const source = sources[this.props.selectedSource];
 	}
 
-	var player = new SpotifyPlayer();
-	player.initialize();
-	
-	api.getMe().then(x => console.dir(x));
-
-	return (
-		<div>
-			<span>Heeeyyyy</span>
-		</div>
-	);
+	public render() {
+		return (
+			<div>
+				<span>Loading...</span>
+			</div>
+		);
+	}
 }
-
-export default withRouter(AudioPlayer);
