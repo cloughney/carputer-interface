@@ -107,12 +107,14 @@ export default class SpotifyConnect extends React.Component<SpotifyConnect.Props
 
 	private async getAccessToken(): Promise<void> {
 		// Try to refresh an existing token.
-		const refreshResponse = await client.request<RefreshTokenResponse>('module.authentication', 'spotify.refresh_access_token');
+		const refreshResponse = await client.request<RefreshTokenResponse>('module.spotify.authentication', 'spotify.refresh_access_token');
 		if (refreshResponse.accessToken) {
 			this.setAccessToken(refreshResponse.accessToken);
 			this.setState({ authState: AuthState.Authenticated });
 			return;
 		}
+
+		// TODO get this URL from the hub ('spotify.get_authentication_details'?)
 		
 		// Start the authentication process.
 		window.location.assign(`http://h.krik.co:9000/spotify/login?redirect_url=${ encodeURIComponent(window.location.href) }`);

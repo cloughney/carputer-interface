@@ -28,8 +28,11 @@ const TopNavigation: React.SFC<TopNavigation.Props> = ({ location, history, isHu
 				</li>
 				<li>
 					<Link to="/">
-						<span className="glyphicon glyphicon-home" style={ isHubConnected ? { color: 'green' } : {} }></span> Home
+						<span className="glyphicon glyphicon-home"></span> Home
 					</Link>
+				</li>
+				<li>
+					<span className={ `glyphicon glyphicon-${ isHubConnected ? 'cloud' : 'refresh' }` }></span>
 				</li>
 			</ul>
 		</nav>

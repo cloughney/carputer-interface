@@ -1,23 +1,25 @@
+export interface InitializedMap {
+    map: google.maps.Map;
+    container: Element;
+}
+
 export class GoogleMapsApiLoader {
     private static libraryCallback = '_onGoogleMapsLibraryLoaded';
-    private apiKey: string;
+    private readonly apiKey: string;
+    private element: Element | null;
     private map: google.maps.Map | null;
 
     public constructor(apiKey: string) {
         this.apiKey = apiKey;
+        this.element = null;
         this.map = null;
     }
 
-    public async load(container: Element): Promise<google.maps.Map> {
-        if (this.map === null) {
-            await this.importLibrary();
-            this.map = this.initializeMap(container, { lat: 0, lng: 0 });
+    public load(): Promise<void> {
+        if (this.map !== null) {
+            return Promise.resolve();
         }
 
-        return this.map;
-    }
-
-    private importLibrary(): Promise<void> {
         return new Promise(resolve => {
             (<any>window)[GoogleMapsApiLoader.libraryCallback] = () => {
                 delete (<any>window)[GoogleMapsApiLoader.libraryCallback];
@@ -30,7 +32,8 @@ export class GoogleMapsApiLoader {
         });
     }
 
-    private initializeMap(container: Element, location: google.maps.LatLngLiteral): google.maps.Map {
+    public initializeMap(container: Element, location: google.maps.LatLngLiteral): google.maps.Map {
+        this.element = container;
         const map = new google.maps.Map(container, {
             center: location,
             zoom: 16,

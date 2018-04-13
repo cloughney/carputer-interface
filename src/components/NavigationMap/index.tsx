@@ -6,7 +6,9 @@ import './styles/navigation.scss';
 
 export interface Props { }
 
-export interface State { }
+export interface State {
+	overlayMessage: string | null;
+}
 
 export default class NavigationMap extends React.Component<Props, State> {
 	private mapContainer: HTMLDivElement | null;
@@ -15,7 +17,9 @@ export default class NavigationMap extends React.Component<Props, State> {
 	public constructor(props: Props) {
 		super(props);
 
-		this.state = {};
+		this.state = {
+			overlayMessage: 'Locating your position...'
+		};
 
 		this.mapContainer = null;
 		this.locationWatcherHandle = -1;
@@ -26,25 +30,48 @@ export default class NavigationMap extends React.Component<Props, State> {
 			return;
 		}
 
-		const map = await googleMapsApiLoader.load(this.mapContainer);
-		//const positionMarker = new google.maps.Marker({ position: { lat: 0, lng: 0 }, map: map });
-		google.maps.event.trigger(map, 'resize');
+		let position: Coordinates;
+		try {
+			position = await this.getCurrentPosition(30000);
+		} catch {
+			this.setState({ overlayMessage: 'Unable to location your position.' });
+			return;
+		}
 
-		// this.locationWatcherHandle = navigator.geolocation.watchPosition(
-		// 	this.onPositionUpdate.bind(this, map, positionMarker),
-		// 	this.onPositionError);
+		this.setState({ overlayMessage: 'Loading map...' });
+		await googleMapsApiLoader.load();
+		
+		this.setState({ overlayMessage: null });
+		const mapPosition = { lat: position.latitude, lng: position.longitude };
+		const map = googleMapsApiLoader.initializeMap(this.mapContainer, mapPosition);
+		const positionMarker = new google.maps.Marker({ position: mapPosition, map: map });
+
+		this.locationWatcherHandle = navigator.geolocation.watchPosition(
+			this.onPositionUpdate.bind(this, map, positionMarker),
+			this.onPositionError);
 	}
 
 	public componentWillUnmount(): void {
-		//navigator.geolocation.clearWatch(this.locationWatcherHandle);
+		navigator.geolocation.clearWatch(this.locationWatcherHandle);
 	}
 
 	public render(): JSX.Element {
-		return (
-			<div className="navigation-map" ref={ e => this.mapContainer = e }>
+		const { overlayMessage } = this.state;
 
+		return (
+			<div className="navigation">
+				<div className="map" ref={ e => this.mapContainer = e }>
+
+				</div>
+				{ overlayMessage != null ? <div className="loading"><span>{overlayMessage}</span></div> : null }
 			</div>
 		);
+	}
+
+	private getCurrentPosition(timeout: number): Promise<Coordinates> {
+		return new Promise((resolve, reject) => {
+			navigator.geolocation.getCurrentPosition(x => resolve(x.coords), reject, { timeout });
+		});
 	}
 
 	private onPositionUpdate = (map: google.maps.Map, marker: google.maps.Marker, position: Position): void => {
