@@ -11,6 +11,7 @@ export const appReducer = combineReducers<AppState>({
 
         return state;
     },
+
     audio: (state = { selectedSource: 'spotify' }, action): AppState['audio'] => {
 
         // switch (action.type) {

@@ -24,7 +24,6 @@ function getPageConfig(env, {
 	return {
 		compressBanner,
 		includeDevServer: env.isDevelopment,
-		googleApiKey: env.secrets.googleApiKey,
 		links: {
 			'home': '/',
 			// 'blog': '//blog.chrisloughney.com',

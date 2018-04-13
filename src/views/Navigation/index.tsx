@@ -6,15 +6,14 @@ import { Link, RouteComponentProps } from 'react-router-dom';
 import { AppState } from 'state';
 import NavigationMap from '../../components/NavigationMap';
 
-type Props = { };
-type InjectedProps = Props & RouteComponentProps<void>;
+export interface Props { }
 
-const NavigationView: React.SFC = ({}) => {
-	return (<NavigationMap></NavigationMap>);
+const NavigationView: React.SFC<Props> = () => {
+	return <NavigationMap />;
 }
 
-const mapStateToProps = (state: AppState): Props => ({});
-const mapDispatchToProps = (dispatch: Dispatch<Action>): Props => ({});
+const mapStateToProps = (state: AppState) => ({ });
+const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({ });
 
 export default connect(
 	mapStateToProps,

@@ -23,7 +23,7 @@ body, html {
 				font-size: 1.4em;
 
 				ul {
-					@extend .list-unstyled, .list-inline;
+					@extend .list-unstyled, .list-inline, .clearfix;
 
 					li {
 						@extend .col-xs-4;

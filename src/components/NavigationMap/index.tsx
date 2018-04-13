@@ -1,33 +1,42 @@
 import * as React from 'react';
 
+import { googleMapsApiLoader } from 'services/navigation';
+
 import './styles/navigation.scss';
 
-interface NavigationMapProps { }
-interface NavigationMapState { }
+export interface Props { }
 
-export default class NavigationMap extends React.Component<NavigationMapProps, NavigationMapState> {
+export interface State { }
+
+export default class NavigationMap extends React.Component<Props, State> {
 	private mapContainer: HTMLDivElement | null;
 	private locationWatcherHandle: number;
 
-	public constructor(props: NavigationMap) {
+	public constructor(props: Props) {
 		super(props);
+
+		this.state = {};
 
 		this.mapContainer = null;
 		this.locationWatcherHandle = -1;
 	}
 
-	public componentDidMount(): void {
-		const initialLocation = { lat: 0, lng: 0 };
-		const map = this.initializeMap(initialLocation);
-		const positionMarker = new google.maps.Marker({ position: initialLocation, map: map });
+	public async componentDidMount(): Promise<void> {
+		if (this.mapContainer === null) {
+			return;
+		}
 
-		this.locationWatcherHandle = navigator.geolocation.watchPosition(
-			this.onPositionUpdate.bind(this, map, positionMarker),
-			this.onPositionError);
+		const map = await googleMapsApiLoader.load(this.mapContainer);
+		//const positionMarker = new google.maps.Marker({ position: { lat: 0, lng: 0 }, map: map });
+		google.maps.event.trigger(map, 'resize');
+
+		// this.locationWatcherHandle = navigator.geolocation.watchPosition(
+		// 	this.onPositionUpdate.bind(this, map, positionMarker),
+		// 	this.onPositionError);
 	}
 
 	public componentWillUnmount(): void {
-		navigator.geolocation.clearWatch(this.locationWatcherHandle);
+		//navigator.geolocation.clearWatch(this.locationWatcherHandle);
 	}
 
 	public render(): JSX.Element {
@@ -51,19 +60,4 @@ export default class NavigationMap extends React.Component<NavigationMapProps, N
 	private onPositionError = (error: PositionError): void => {
 
 	};
-
-	private initializeMap = (location: google.maps.LatLngLiteral): google.maps.Map => {
-		const map = new google.maps.Map(this.mapContainer, {
-			center: location,
-			zoom: 16,
-			streetViewControl: false,
-			mapTypeControl: false,
-			mapTypeId: google.maps.MapTypeId.ROADMAP
-		});
-
-		const traffic = new google.maps.TrafficLayer();
-		traffic.setMap(map);
-
-		return map;
-	}
 }
