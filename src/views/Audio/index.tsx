@@ -3,34 +3,46 @@ import { Action, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { Route, RouteComponentProps, Switch, withRouter, Redirect } from 'react-router-dom';
 
-import './audio.scss';
+import './index.scss';
 
 import { AppState } from 'state';
-import { IAudioSource, sources } from 'services/audio';
+import { AudioSource, audioSourceService } from 'services/audio';
 import AudioPlayer from 'components/AudioPlayer';
 import SourceBrowser from './components/source-browser';
 import SpotifyConnect from './components/spotify-connect';
 
-export namespace AudioView {
-	export interface Props extends RouteComponentProps<any> {
-		isHubConnected: boolean;
-		selectedSource: string;
-	}
-
-	export interface State { }
+export interface Props extends RouteComponentProps<any> {
+	isHubConnected: boolean;
+	selectedSource: string;
 }
 
-class AudioView extends React.Component<AudioView.Props> {
-	public constructor(props: AudioView.Props) {
+export interface State {
+	audioSource: AudioSource | null;
+}
+
+class AudioView extends React.Component<Props, State> {
+	public constructor(props: Props) {
 		super(props);
+		this.state = {
+			audioSource: null
+		}
+	}
+
+	public async componentDidMount(): Promise<void> {
+		const audioSource = await audioSourceService.setActiveSource(this.props.selectedSource);
+		this.setState({ audioSource });
 	}
 
 	public render() {
+		const { audioSource } = this.state;
+		const { url: matchedPath } = this.props.match;
+
 		return (
 			<div className="container-fluid">
 				<Switch>
-					<Route exact path={ this.props.match.url } render={ props => <SourceBrowser audioSource={ sources[this.props.selectedSource] } { ...props } /> } />
-					<Route path={ `${ this.props.match.url }/spotify/connect` } render={ props => <SpotifyConnect isHubConnected={ this.props.isHubConnected } { ...props } /> } />
+					<Route exact path={ matchedPath } render={ props => <AudioPlayer audioSource={ audioSource } { ...props } /> } />
+					<Route path={ `${matchedPath}/browse` } render={ props => <SourceBrowser audioSource={ audioSource } { ...props } /> } />
+					<Route path={ `${matchedPath}/spotify/connect` } render={ props => <SpotifyConnect isHubConnected={ this.props.isHubConnected } { ...props } /> } />
 				</Switch>
 			</div>
 		);

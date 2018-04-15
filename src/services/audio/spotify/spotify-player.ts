@@ -1,35 +1,47 @@
 import { IAudioPlayer, Track } from '../';
+import { api } from '.';
 
 export class SpotifyPlayer implements IAudioPlayer {
     private libElement: HTMLScriptElement | null;
     private player: Spotify.SpotifyPlayer | null;
-    private playerId: string | null;
+    private playerDeviceId: string | null;
     private playerState: Spotify.PlaybackState | null;
 
     public constructor() {
         this.libElement = null;
         this.player = null;
-        this.playerId = null;
+        this.playerDeviceId = null;
         this.playerState = null;
     }
 
     public initialize(): Promise<void> {
         return new Promise((resolve, reject) => {
             window.onSpotifyWebPlaybackSDKReady = async () => {
+
                 this.player = new Spotify.Player({
                     name: 'krikCar', //TODO add to configuration
-                    getOAuthToken(setToken) { setToken(''); }
+                    getOAuthToken(setToken) { setToken(api.getAccessToken()); }
                 });
 
                 this.player.addListener('initialization_error', ({ message }) => { reject(new Error(message)); });
-                this.player.addListener('authentication_error', ({ message }) => { reject(new Error(message)); });
+                this.player.addListener('authentication_error', ({ message }) => {
+                    window.location.hash = '#/audio/spotify/connect';
+                });
+
                 this.player.addListener('account_error', ({ message }) => { reject(new Error(message)); });
                 this.player.addListener('playback_error', ({ message }) => { reject(new Error(message)); }); // FIXME This should probably be handled internally.
 
                 this.player.addListener('player_state_changed', state => { this.playerState = state; console.log(state); });
 
-                this.player.addListener('ready', ({ device_id }) => {
-                    this.playerId = device_id;
+                this.player.addListener('ready', async ({ device_id }) => {
+                    if (this.player === null) {
+                        reject();
+                        return;
+                    }
+
+                    this.playerDeviceId = device_id;
+                    await (api as any).transferMyPlayback([device_id]);
+
                     resolve();
                 });
 
@@ -37,9 +49,9 @@ export class SpotifyPlayer implements IAudioPlayer {
             };
 
             this.libElement = document.createElement('script');
-            this.libElement.setAttribute('src', 'https://sdk.scdn.co/spotify-player.js'); //TODO add to configuration
+            this.libElement.src = 'https://sdk.scdn.co/spotify-player.js'; //TODO add to configuration
 
-            window.document.body.appendChild(this.libElement);
+            window.document.head.appendChild(this.libElement);
         });
     }
 
@@ -56,10 +68,10 @@ export class SpotifyPlayer implements IAudioPlayer {
         this.player.removeListener('player_state_changed');
         this.player.removeListener('ready');
 
-        window.document.body.removeChild(this.libElement);
+        window.document.head.removeChild(this.libElement);
 
         this.playerState = null;
-        this.playerId = null;
+        this.playerDeviceId = null;
         this.player = null;
         this.libElement = null;
     }
@@ -73,7 +85,7 @@ export class SpotifyPlayer implements IAudioPlayer {
             return;
         }
 
-        await this.player.resume();
+        await this.player.togglePlay();
     }
 
     public async pause(): Promise<void> {

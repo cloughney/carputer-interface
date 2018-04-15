@@ -4,11 +4,11 @@ import { googleMapsApiLoader } from 'services/navigation';
 
 import './styles/navigation.scss';
 
-export interface Props { }
-
-export interface State {
-	overlayMessage: string | null;
+export interface Props {
+	setOverlayMessage(message: string | null): void;
 }
+
+export interface State { }
 
 export default class NavigationMap extends React.Component<Props, State> {
 	private mapContainer: HTMLDivElement | null;
@@ -17,9 +17,7 @@ export default class NavigationMap extends React.Component<Props, State> {
 	public constructor(props: Props) {
 		super(props);
 
-		this.state = {
-			overlayMessage: 'Locating your position...'
-		};
+		this.state = { };
 
 		this.mapContainer = null;
 		this.locationWatcherHandle = -1;
@@ -30,18 +28,19 @@ export default class NavigationMap extends React.Component<Props, State> {
 			return;
 		}
 
+		this.props.setOverlayMessage('Locating your position...');
 		let position: Coordinates;
 		try {
 			position = await this.getCurrentPosition(30000);
 		} catch {
-			this.setState({ overlayMessage: 'Unable to location your position.' });
+			this.props.setOverlayMessage('Unable to location your position.');
 			return;
 		}
 
-		this.setState({ overlayMessage: 'Loading map...' });
+		this.props.setOverlayMessage('Loading map...');
 		await googleMapsApiLoader.load();
-		
-		this.setState({ overlayMessage: null });
+
+		this.props.setOverlayMessage(null);
 		const mapPosition = { lat: position.latitude, lng: position.longitude };
 		const map = googleMapsApiLoader.initializeMap(this.mapContainer, mapPosition);
 		const positionMarker = new google.maps.Marker({ position: mapPosition, map: map });
@@ -56,14 +55,9 @@ export default class NavigationMap extends React.Component<Props, State> {
 	}
 
 	public render(): JSX.Element {
-		const { overlayMessage } = this.state;
-
 		return (
 			<div className="navigation">
-				<div className="map" ref={ e => this.mapContainer = e }>
-
-				</div>
-				{ overlayMessage != null ? <div className="loading"><span>{overlayMessage}</span></div> : null }
+				<div className="map" ref={ e => this.mapContainer = e } />
 			</div>
 		);
 	}

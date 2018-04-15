@@ -1,24 +1,34 @@
 import * as React from 'react';
 import { RouteComponentProps, Redirect, withRouter } from 'react-router';
 
-import { sources } from 'services/audio';
+import { AudioSource } from 'services/audio';
 
-export namespace AudioPlayer {
-	export type Props = RouteComponentProps<void> & {
-		selectedSource: string;
-	};
+export interface Props extends RouteComponentProps<void> {
+	audioSource: AudioSource | null;
 }
 
-export default class AudioPlayer extends React.Component<AudioPlayer.Props> {
-	public componentDidMount(): void {
-		const source = sources[this.props.selectedSource];
+export default class AudioPlayer extends React.Component<Props> {
+	public constructor(props: Props) {
+		super(props);
 	}
 
 	public render() {
 		return (
 			<div>
-				<span>Loading...</span>
+				<button onClick={ this.onPlayClick }>Play!</button>
 			</div>
 		);
+	}
+
+	private onPlayClick = async (): Promise<void> => {
+		if (this.props.audioSource !== null) {
+			this.props.audioSource.player.play();
+		}
+	}
+
+	private onPauseClick = async (): Promise<void> => {
+		if (this.props.audioSource !== null) {
+			this.props.audioSource.player.pause();
+		}
 	}
 }

@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { IAudioSource, Category } from 'services/audio';
+import { AudioSource, Category } from 'services/audio';
 import { Redirect } from 'react-router';
 
 import './source-browser.scss';
 
 export interface Props {
-    audioSource: IAudioSource;
+    audioSource: AudioSource | null;
 }
 
 export interface State {
@@ -23,6 +23,10 @@ export default class SourceBrowser extends React.Component<Props, State> {
     }
 
     public async componentDidMount(): Promise<void> {
+        if (this.props.audioSource === null) {
+            return;
+        }
+
 		try {
 			const categories = await this.props.audioSource.browser.getCategories();
 			this.setState({ items: categories });
@@ -35,7 +39,7 @@ export default class SourceBrowser extends React.Component<Props, State> {
 
     public render() {
         if (this.state.isAwaitingAuthentication) {
-            return <Redirect to="/audio/spotify/connect" />;
+            return <Redirect to="/audio/spotify/connect" />; //TODO move redirect to audioSource impelmentation... probably
         }
 
         const tiles = this.state.items.map(x => 

@@ -1,0 +1,34 @@
+.app-container {
+    .app-nav {
+        padding: 10px 25px;
+        font-size: 1.4em;
+
+        ul {
+            clear: both;
+            padding: 0;
+            margin: 0;
+
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+
+            li {
+                flex-grow: 1;
+                list-style: none;
+
+                &:nth-of-type(2) { text-align: center; }
+                &:nth-of-type(3) {
+                    text-align: right;
+                    line-height: 1em;
+                    font-size: 0.9em;
+                }
+
+                a {
+                    color: #333;
+                    text-decoration: none;
+                }
+            }
+        }
+    }
+}

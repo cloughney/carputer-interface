@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
 
-export namespace TopNavigation {
-	export type Props = RouteComponentProps<void> & {
-		isHubConnected: boolean;
-	};
+import './top-navigation.scss';
+
+export interface Props extends RouteComponentProps<void> {
+	isHubConnected: boolean;
 }
 
-const TopNavigation: React.SFC<TopNavigation.Props> = ({ location, history, isHubConnected }) => {
+const TopNavigation: React.SFC<Props> = ({ location, history, isHubConnected }) => {
 	const isHome = location.pathname === '/';
 
 	const onBackClick = (e: React.MouseEvent<HTMLAnchorElement>): void => {
@@ -32,7 +32,7 @@ const TopNavigation: React.SFC<TopNavigation.Props> = ({ location, history, isHu
 					</Link>
 				</li>
 				<li>
-					<span className={ `glyphicon glyphicon-${ isHubConnected ? 'cloud' : 'refresh' }` }></span>
+					<span className={ `glyphicon glyphicon-${ isHubConnected ? 'cloud text-success' : 'refresh text-warning' }` }></span>
 				</li>
 			</ul>
 		</nav>
