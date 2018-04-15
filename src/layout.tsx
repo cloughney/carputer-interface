@@ -14,11 +14,10 @@ import NavigationView from './views/Navigation';
 export namespace Layout {
 	export type Props = {
 		isHubConnected: boolean;
-		overlayMessage: string | null;
 	}
 }
 
-const Layout: React.SFC<Layout.Props> = ({ isHubConnected, overlayMessage }) => {
+const Layout: React.SFC<Layout.Props> = ({ isHubConnected }) => {
 	return (
 		<Router>
 			<div className="app-container">
@@ -30,15 +29,13 @@ const Layout: React.SFC<Layout.Props> = ({ isHubConnected, overlayMessage }) => 
 						<Route path="/navigation" component={ NavigationView } />
 					</Switch>
 				</div>
-				{ overlayMessage != null ? <div className="overlay"><span>{overlayMessage}</span></div> : null }
 			</div>
 		</Router>
 	);
 }
 
 const mapStateToProps = (state: AppState) => ({
-	isHubConnected: state.isHubConnected,
-	overlayMessage: state.overlayMessage
+	isHubConnected: state.isHubConnected
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({ });

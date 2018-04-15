@@ -1,14 +1,13 @@
 import * as React from 'react';
-
 import { googleMapsApiLoader } from 'services/navigation';
 
-import './styles/navigation.scss';
+import './navigation-map.scss';
 
-export interface Props {
-	setOverlayMessage(message: string | null): void;
+export interface Props { }
+
+export interface State {
+	overlayMessage: string | null;
 }
-
-export interface State { }
 
 export default class NavigationMap extends React.Component<Props, State> {
 	private mapContainer: HTMLDivElement | null;
@@ -17,7 +16,7 @@ export default class NavigationMap extends React.Component<Props, State> {
 	public constructor(props: Props) {
 		super(props);
 
-		this.state = { };
+		this.state = { overlayMessage: null };
 
 		this.mapContainer = null;
 		this.locationWatcherHandle = -1;
@@ -28,19 +27,19 @@ export default class NavigationMap extends React.Component<Props, State> {
 			return;
 		}
 
-		this.props.setOverlayMessage('Locating your position...');
+		this.setState({ overlayMessage: 'Locating your position...' });
 		let position: Coordinates;
 		try {
 			position = await this.getCurrentPosition(30000);
 		} catch {
-			this.props.setOverlayMessage('Unable to location your position.');
+			this.setState({ overlayMessage: 'Unable to location your position.' });
 			return;
 		}
 
-		this.props.setOverlayMessage('Loading map...');
+		this.setState({ overlayMessage: 'Loading map...' });
 		await googleMapsApiLoader.load();
 
-		this.props.setOverlayMessage(null);
+		this.setState({ overlayMessage: null });
 		const mapPosition = { lat: position.latitude, lng: position.longitude };
 		const map = googleMapsApiLoader.initializeMap(this.mapContainer, mapPosition);
 		const positionMarker = new google.maps.Marker({ position: mapPosition, map: map });
@@ -55,9 +54,12 @@ export default class NavigationMap extends React.Component<Props, State> {
 	}
 
 	public render(): JSX.Element {
+		const { overlayMessage } = this.state;
+
 		return (
-			<div className="navigation">
+			<div className="navigation with-overlay">
 				<div className="map" ref={ e => this.mapContainer = e } />
+				{ overlayMessage != null ? <div className="overlay"><span>{overlayMessage}</span></div> : null }
 			</div>
 		);
 	}

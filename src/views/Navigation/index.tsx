@@ -4,21 +4,17 @@ import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
 
 import { AppState } from 'state';
-import NavigationMap from '../../components/NavigationMap';
+import NavigationMap from '../../components/navigation-map';
 
-export interface Props {
-	setOverlayMessage(message: string | null): void;
-}
+export interface Props { }
 
-const NavigationView: React.SFC<Props> = ({ setOverlayMessage }) => {
-	return <NavigationMap setOverlayMessage={ setOverlayMessage } />;
+const NavigationView: React.SFC<Props> = ({ }) => {
+	return <NavigationMap />;
 }
 
 const mapStateToProps = (state: AppState) => ({ });
 
-const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
-	setOverlayMessage: (message: string | null) => { dispatch({ type: 'OVERLAY_MESSAGE', message }) }
-});
+const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({ });
 
 export default connect(
 	mapStateToProps,

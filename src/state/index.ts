@@ -4,6 +4,5 @@ export interface AudioState {
 
 export type AppState = Readonly<{
 	isHubConnected: boolean;
-	overlayMessage: string | null;
 	audio: AudioState;
 }>;
