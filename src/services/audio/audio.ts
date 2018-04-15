@@ -1,26 +1,37 @@
 export interface Album {
-    uri: string;
     name: string;
     images: string[];
 }
 
 export interface Artist {
-    uri: string;
     name: string;
 }
 
 export interface Track {
-    uri: string;
+    uri: string | null;
     id: string | null;
     name: string;
     album: Album;
     artists: Artist[];
+    duration: number;
 }
 
 export interface Category {
     id: string;
     name: string;
     image: string;
+}
+
+export interface PlaybackState {
+    isPlaying: boolean;
+    trackPosition: number;
+}
+
+export interface AudioPlayerState {
+    playback: PlaybackState;
+    currentTrack: Track | null;
+    previousTracks: Track[];
+    nextTracks: Track[];
 }
 
 export interface IAudioPlayer {

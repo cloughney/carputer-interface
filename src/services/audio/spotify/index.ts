@@ -10,9 +10,17 @@ export const browser = new SpotifyLibraryBrowser();
 export const player = new SpotifyPlayer();
 
 export const initialize = async (): Promise<void> => {
+    console.log('init');
+
     if (!isInitialized) {
-        await player.initialize();
-        isInitialized = true;
+        try {
+            await player.initialize();
+            isInitialized = true;
+        } catch (err) {
+            if (err.type === 'authentication') {
+                window.location.hash = '#/spotify/connect'; // TODO where should this route live? The path should probably be stored somewhere global.
+            }
+        }
     }
 }
 

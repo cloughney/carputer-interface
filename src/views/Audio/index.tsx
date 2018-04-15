@@ -7,9 +7,8 @@ import './index.scss';
 
 import { AppState } from 'state';
 import { AudioSource, audioSourceService } from 'services/audio';
-import AudioPlayer from 'components/AudioPlayer';
+import AudioPlayer from 'components/audio-player';
 import SourceBrowser from './components/source-browser';
-import SpotifyConnect from './components/spotify-connect';
 
 export interface Props extends RouteComponentProps<any> {
 	isHubConnected: boolean;
@@ -42,7 +41,6 @@ class AudioView extends React.Component<Props, State> {
 				<Switch>
 					<Route exact path={ matchedPath } render={ props => <AudioPlayer audioSource={ audioSource } { ...props } /> } />
 					<Route path={ `${matchedPath}/browse` } render={ props => <SourceBrowser audioSource={ audioSource } { ...props } /> } />
-					<Route path={ `${matchedPath}/spotify/connect` } render={ props => <SpotifyConnect isHubConnected={ this.props.isHubConnected } { ...props } /> } />
 				</Switch>
 			</div>
 		);

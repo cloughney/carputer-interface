@@ -84,7 +84,7 @@ export class StreamPlayer implements IAudioPlayer {
             return;
         }
         
-        this.player.setAttribute('src', this.tracks[0].uri);
+        this.player.src = this.tracks[0].uri as string;
         this.playerState.currentTrack = track;
     }
 }

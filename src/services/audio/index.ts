@@ -19,12 +19,8 @@ class AudioSourceService {
     }
 
     public async setActiveSource(key: string): Promise<AudioSource> {
-        if (this.activeSourceContainer !== null) {
-            if (this.activeSourceContainer.key === key) {
-                return this.activeSource as AudioSource;
-            } else {
-                await this.activeSourceContainer.module.dispose();
-            }
+        if (this.activeSourceContainer !== null && this.activeSourceContainer.key !== key) {
+            await this.activeSourceContainer.module.dispose();
         }
         
         const audioModule = await import(`./${key}`) as IAudioModule;

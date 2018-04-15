@@ -1,48 +1,72 @@
-import { IAudioPlayer, Track } from '../';
+import { IAudioPlayer, AudioPlayerState, Track } from '..';
 import { api } from '.';
 
+const defaultPlayerState = {
+    playback: {
+        isPlaying: false,
+        trackPosition: 0
+    },
+    currentTrack: null,
+    previousTracks: [],
+    nextTracks: []
+};
+
+interface EventListeners {
+    'stateUpdate': (state: AudioPlayerState) => void;
+}
+
+type EventListenerMap = { [P in keyof EventListeners]: EventListeners[P][] };
+
 export class SpotifyPlayer implements IAudioPlayer {
+    private readonly eventListenerMap: EventListenerMap;
     private libElement: HTMLScriptElement | null;
     private player: Spotify.SpotifyPlayer | null;
     private playerDeviceId: string | null;
-    private playerState: Spotify.PlaybackState | null;
+    private playerState: AudioPlayerState | null;
+    private playbackInterval: number | null;
 
     public constructor() {
+        this.eventListenerMap = {
+            'stateUpdate': []
+        };
+
         this.libElement = null;
         this.player = null;
         this.playerDeviceId = null;
         this.playerState = null;
+        this.playbackInterval = null;
     }
 
     public initialize(): Promise<void> {
         return new Promise((resolve, reject) => {
             window.onSpotifyWebPlaybackSDKReady = async () => {
-
                 this.player = new Spotify.Player({
                     name: 'krikCar', //TODO add to configuration
-                    getOAuthToken(setToken) { setToken(api.getAccessToken()); }
+                    getOAuthToken(setToken) {
+                        const token = api.getAccessToken();
+                        if (token === null) {
+                            reject({ type: 'authentication' });
+                            return;
+                        }
+
+                        setToken(token);
+                    }
                 });
 
+                this.player.addListener('authentication_error', ({ message }) => { reject({ type: 'authentication' }); });
                 this.player.addListener('initialization_error', ({ message }) => { reject(new Error(message)); });
-                this.player.addListener('authentication_error', ({ message }) => {
-                    window.location.hash = '#/audio/spotify/connect';
-                });
-
                 this.player.addListener('account_error', ({ message }) => { reject(new Error(message)); });
-                this.player.addListener('playback_error', ({ message }) => { reject(new Error(message)); }); // FIXME This should probably be handled internally.
 
-                this.player.addListener('player_state_changed', state => { this.playerState = state; console.log(state); });
+                this.player.addListener('player_state_changed', this.onStateUpdate);
+                this.player.addListener('playback_error', this.onPlaybackError);
 
                 this.player.addListener('ready', async ({ device_id }) => {
-                    if (this.player === null) {
+                    if (this.player !== null) {
+                        await this.onPlayerReady(this.player, device_id);
+                        resolve();
+                    } else {
                         reject();
-                        return;
                     }
-
-                    this.playerDeviceId = device_id;
-                    await (api as any).transferMyPlayback([device_id]);
-
-                    resolve();
                 });
 
                 await this.player.connect();
@@ -60,6 +84,10 @@ export class SpotifyPlayer implements IAudioPlayer {
             return;
         }
 
+        Object.getOwnPropertyNames(this.eventListenerMap).forEach(x => {
+            this.eventListenerMap[x as keyof EventListeners] = [];
+        });
+
         this.player.disconnect();
         this.player.removeListener('initialization_error');
         this.player.removeListener('authentication_error');
@@ -74,6 +102,10 @@ export class SpotifyPlayer implements IAudioPlayer {
         this.playerDeviceId = null;
         this.player = null;
         this.libElement = null;
+    }
+
+    public addEventListener<T extends keyof EventListeners>(eventName: T, listener: EventListeners[T]): void {
+        this.eventListenerMap[eventName].push(listener);
     }
 
     public async setTracks(tracks: Track[]): Promise<void> {
@@ -98,4 +130,49 @@ export class SpotifyPlayer implements IAudioPlayer {
 
     public async nextTrack(): Promise<void> { }
     public async previousTrack(): Promise<void> { }
+
+    private async onPlayerReady(player: Spotify.SpotifyPlayer, deviceId: string): Promise<void> {
+        this.playerDeviceId = deviceId;
+        await (api as any).transferMyPlayback([deviceId]);
+        
+        const spotifyState = await player.getCurrentState();
+        if (spotifyState === null) {
+            this.playerState = defaultPlayerState;
+            return;
+        }
+
+        this.onStateUpdate(spotifyState);
+    }
+
+    private onStateUpdate = (state: Spotify.PlaybackState): void => {
+        const { current_track: currentTrack } = state.track_window;
+
+        const playerState = this.playerState = {
+            playback: {
+                isPlaying: !state.paused,
+                trackPosition: state.position
+            },
+            currentTrack: {
+                uri: null,
+                id: null,
+                name: currentTrack.name,
+                duration: (currentTrack as any).duration_ms,
+                album: {
+                    name: currentTrack.album.name,
+                    images: []
+                },
+                artists: currentTrack.artists.map(x => ({
+                    name: x.name
+                }))
+            },
+            nextTracks: [],
+            previousTracks: []
+        };
+
+        this.eventListenerMap.stateUpdate.forEach(x => x(playerState));
+    }
+
+    private onPlaybackError = (err: Spotify.Error): void => {
+        
+    }
 }

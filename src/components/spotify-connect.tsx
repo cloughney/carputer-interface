@@ -121,6 +121,7 @@ export default class SpotifyConnect extends React.Component<SpotifyConnect.Props
 	}
 
 	private setAccessToken(accessToken: string): void {
+		console.log(accessToken);
 		api.setAccessToken(accessToken);
 	}
 }
