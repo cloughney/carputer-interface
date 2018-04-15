@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { googleMapsApiLoader } from 'services/navigation';
+import Overlay from 'components/overlay';
 
 import './navigation-map.scss';
 
@@ -59,7 +60,7 @@ export default class NavigationMap extends React.Component<Props, State> {
 		return (
 			<div className="navigation with-overlay">
 				<div className="map" ref={ e => this.mapContainer = e } />
-				{ overlayMessage != null ? <div className="overlay"><span>{overlayMessage}</span></div> : null }
+				<Overlay isVisible={ overlayMessage !== null }>{overlayMessage}</Overlay>
 			</div>
 		);
 	}

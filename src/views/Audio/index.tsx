@@ -37,7 +37,7 @@ class AudioView extends React.Component<Props, State> {
 		const { url: matchedPath } = this.props.match;
 
 		return (
-			<div className="container-fluid">
+			<div className="audio">
 				<Switch>
 					<Route exact path={ matchedPath } render={ props => <AudioPlayer audioSource={ audioSource } { ...props } /> } />
 					<Route path={ `${matchedPath}/browse` } render={ props => <SourceBrowser audioSource={ audioSource } { ...props } /> } />

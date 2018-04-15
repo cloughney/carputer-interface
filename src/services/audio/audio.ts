@@ -62,3 +62,13 @@ export interface AudioSource {
     browser: ILibraryBrowser;
     player: IAudioPlayer;
 }
+
+export const defaultPlayerState = {
+    playback: {
+        isPlaying: false,
+        trackPosition: 0
+    },
+    currentTrack: null,
+    previousTracks: [],
+    nextTracks: []
+};

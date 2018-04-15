@@ -1,15 +1,5 @@
-import { IAudioPlayer, AudioPlayerState, Track } from '..';
+import { IAudioPlayer, AudioPlayerState, Track, defaultPlayerState } from '..';
 import { api } from '.';
-
-const defaultPlayerState = {
-    playback: {
-        isPlaying: false,
-        trackPosition: 0
-    },
-    currentTrack: null,
-    previousTracks: [],
-    nextTracks: []
-};
 
 interface EventListeners {
     'stateUpdate': (state: AudioPlayerState) => void;
