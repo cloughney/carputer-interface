@@ -17,6 +17,7 @@ export const initialize = async (): Promise<void> => {
             await player.initialize();
             isInitialized = true;
         } catch (err) {
+            console.log(err);
             if (err.type === 'authentication') {
                 window.location.hash = '#/spotify/connect'; // TODO where should this route live? The path should probably be stored somewhere global.
             }

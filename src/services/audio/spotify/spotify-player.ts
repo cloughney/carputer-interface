@@ -44,7 +44,7 @@ export class SpotifyPlayer implements IAudioPlayer {
                 });
 
                 this.player.addListener('authentication_error', ({ message }) => { reject({ type: 'authentication' }); });
-                this.player.addListener('initialization_error', ({ message }) => { reject(new Error(message)); });
+                this.player.addListener('initialization_error', (err) => { console.log(err); reject(new Error(err.message)); });
                 this.player.addListener('account_error', ({ message }) => { reject(new Error(message)); });
 
                 this.player.addListener('player_state_changed', this.onStateUpdate);

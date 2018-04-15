@@ -45,12 +45,6 @@ export default class SpotifyConnect extends React.Component<SpotifyConnect.Props
 	}
 
 	public componentDidMount(): void {
-		const accessToken = api.getAccessToken();
-		if (accessToken) {
-			this.setState({ authState: AuthState.Authenticated });
-			return;
-		}
-
 		// Check for a response from initial authentication.
 		const hash = this.getResponseFromQuery();
 		if (this.isErrorResponse(hash)) {
@@ -117,7 +111,7 @@ export default class SpotifyConnect extends React.Component<SpotifyConnect.Props
 		// TODO get this URL from the hub ('spotify.get_authentication_details'?)
 		
 		// Start the authentication process.
-		window.location.assign(`http://h.krik.co:9000/spotify/login?redirect_url=${ encodeURIComponent(window.location.href) }`);
+		window.location.assign(`https://h.krik.co:9000/spotify/login?redirect_url=${ encodeURIComponent(window.location.href) }`);
 	}
 
 	private setAccessToken(accessToken: string): void {
