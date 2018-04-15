@@ -4,11 +4,10 @@
   "description": "A web interface used to control my Raspberry Pi carputer.",
   "main": "dist/index.js",
   "scripts": {
-    "build": "npm run webpack",
-    "start": "npm run build && webpack-dev-server",
+    "build": "webpack",
+    "start": "webpack && webpack-dev-server",
     "test": "cross-env NODE_ENV=test karma start",
-    "watch": "webpack --watch",
-    "webpack": "webpack"
+    "watch": "webpack --watch"
   },
   "repository": {
     "type": "git",
