@@ -10,8 +10,6 @@ export const browser = new SpotifyLibraryBrowser();
 export const player = new SpotifyPlayer();
 
 export const initialize = async (): Promise<void> => {
-    console.log('init');
-
     if (!isInitialized) {
         try {
             await player.initialize();

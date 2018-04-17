@@ -1,17 +1,13 @@
+import { client as hub } from 'services/hub';
 import { IAudioPlayer, AudioPlayerState, Track, defaultPlayerState } from '..';
 import { api } from '.';
 
-interface EventListeners {
-    'stateUpdate': (state: AudioPlayerState) => void;
-}
-
-type EventListenerMap = { [P in keyof EventListeners]: EventListeners[P][] };
+export interface EventListeners { 'stateUpdate': (state: AudioPlayerState) => void; }
+export type EventListenerMap = { [P in keyof EventListeners]: EventListeners[P][] };
 
 export class SpotifyPlayer implements IAudioPlayer {
     private readonly eventListenerMap: EventListenerMap;
-    private libElement: HTMLScriptElement | null;
-    private player: Spotify.SpotifyPlayer | null;
-    private playerDeviceId: string | null;
+    private deviceId: string | null;
     private playerState: AudioPlayerState | null;
     private playbackInterval: number | null;
 
@@ -20,78 +16,45 @@ export class SpotifyPlayer implements IAudioPlayer {
             'stateUpdate': []
         };
 
-        this.libElement = null;
-        this.player = null;
-        this.playerDeviceId = null;
+        this.deviceId = null;
         this.playerState = null;
         this.playbackInterval = null;
     }
 
-    public initialize(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            window.onSpotifyWebPlaybackSDKReady = async () => {
-                this.player = new Spotify.Player({
-                    name: 'krikCar', //TODO add to configuration
-                    getOAuthToken(setToken) {
-                        const token = api.getAccessToken();
-                        if (token === null) {
-                            reject({ type: 'authentication' });
-                            return;
-                        }
+    public async initialize(): Promise<void> {
+        // const response = await hub.request('spotify.player', 'initialize_player'); // TODO type the response
+                
+        // this.deviceId = response.deviceId;
+        // this.playerState = defaultPlayerState;
 
-                        setToken(token);
-                    }
-                });
+        // await (api as any).transferMyPlayback([ this.deviceId ]);
 
-                this.player.addListener('authentication_error', ({ message }) => { reject({ type: 'authentication' }); });
-                this.player.addListener('initialization_error', (err) => { console.log(err); reject(new Error(err.message)); });
-                this.player.addListener('account_error', ({ message }) => { reject(new Error(message)); });
+        // const spotifyState = await api.getplayerstate
+        // if (spotifyState === null) {
+        //     this.playerState = defaultPlayerState;
+        //     return;
+        // }
 
-                this.player.addListener('player_state_changed', this.onStateUpdate);
-                this.player.addListener('playback_error', this.onPlaybackError);
+        //this.onStateUpdate(spotifyState);
 
-                this.player.addListener('ready', async ({ device_id }) => {
-                    if (this.player !== null) {
-                        await this.onPlayerReady(this.player, device_id);
-                        resolve();
-                    } else {
-                        reject();
-                    }
-                });
-
-                await this.player.connect();
-            };
-
-            this.libElement = document.createElement('script');
-            this.libElement.src = 'https://sdk.scdn.co/spotify-player.js'; //TODO add to configuration
-
-            window.document.head.appendChild(this.libElement);
-        });
+        this.playbackInterval = setInterval(() => {
+            //const response = await api.getplayerstate
+        }, 2000);
     }
 
     public async dispose(): Promise<void> {
-        if (this.libElement === null || this.player === null) {
+        if (this.deviceId === null || this.playbackInterval === null) {
             return;
         }
+
+        clearInterval(this.playbackInterval);
 
         Object.getOwnPropertyNames(this.eventListenerMap).forEach(x => {
             this.eventListenerMap[x as keyof EventListeners] = [];
         });
 
-        this.player.disconnect();
-        this.player.removeListener('initialization_error');
-        this.player.removeListener('authentication_error');
-        this.player.removeListener('account_error');
-        this.player.removeListener('playback_error');
-        this.player.removeListener('player_state_changed');
-        this.player.removeListener('ready');
-
-        window.document.head.removeChild(this.libElement);
-
         this.playerState = null;
-        this.playerDeviceId = null;
-        this.player = null;
-        this.libElement = null;
+        this.deviceId = null;
     }
 
     public addEventListener<T extends keyof EventListeners>(eventName: T, listener: EventListeners[T]): void {
@@ -99,39 +62,33 @@ export class SpotifyPlayer implements IAudioPlayer {
     }
 
     public async setTracks(tracks: Track[]): Promise<void> {
-
+        if (this.deviceId !== null) {
+            //await api.tracks
+        }
     }
 
     public async play(): Promise<void> {
-        if (this.player === null) {
-            return;
+        if (this.deviceId !== null) {
+            //await api.play
         }
-
-        await this.player.togglePlay();
     }
 
     public async pause(): Promise<void> {
-        if (this.player === null) {
-            return;
+        if (this.deviceId !== null) {
+            //await api.pause
         }
-
-        await this.player.pause();
     }
 
-    public async nextTrack(): Promise<void> { }
-    public async previousTrack(): Promise<void> { }
-
-    private async onPlayerReady(player: Spotify.SpotifyPlayer, deviceId: string): Promise<void> {
-        this.playerDeviceId = deviceId;
-        await (api as any).transferMyPlayback([deviceId]);
-        
-        const spotifyState = await player.getCurrentState();
-        if (spotifyState === null) {
-            this.playerState = defaultPlayerState;
-            return;
+    public async nextTrack(): Promise<void> {
+        if (this.deviceId !== null) {
+            //await api.next
         }
+    }
 
-        this.onStateUpdate(spotifyState);
+    public async previousTrack(): Promise<void> {
+        if (this.deviceId !== null) {
+            //await api.prev
+        }
     }
 
     private onStateUpdate = (state: Spotify.PlaybackState): void => {
@@ -160,9 +117,5 @@ export class SpotifyPlayer implements IAudioPlayer {
         };
 
         this.eventListenerMap.stateUpdate.forEach(x => x(playerState));
-    }
-
-    private onPlaybackError = (err: Spotify.Error): void => {
-        
     }
 }
