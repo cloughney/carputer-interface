@@ -34,9 +34,15 @@ export interface AudioPlayerState {
     nextTracks: Track[];
 }
 
+export interface AudioPlayerEventListeners { 'stateUpdate': (state: AudioPlayerState) => void; }
+export type AudioPlayerEventListenerMap = { [P in keyof AudioPlayerEventListeners]: AudioPlayerEventListeners[P][] };
+
 export interface IAudioPlayer {
     initialize(): Promise<void>;
     dispose(): Promise<void>;
+
+    addEventListener<T extends keyof AudioPlayerEventListeners>(eventName: T, listener: AudioPlayerEventListeners[T]): void;
+    removeEventListener<T extends keyof AudioPlayerEventListeners>(eventName: T, listener: AudioPlayerEventListeners[T]): void;
 
     setTracks(tracks: Track[]): Promise<void>;
 
@@ -50,7 +56,7 @@ export interface ILibraryBrowser {
     getCategories(): Promise<Category[]>;
 }
 
-export interface IAudioModule {
+export interface AudioModule {
     browser: ILibraryBrowser;
     player: IAudioPlayer;
     initialize(): Promise<void>;

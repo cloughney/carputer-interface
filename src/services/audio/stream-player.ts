@@ -1,4 +1,4 @@
-import { IAudioPlayer, Track } from '.';
+import { IAudioPlayer, Track, AudioPlayerEventListeners as EventListeners } from '.';
 
 const uninitializedPlayerError = 'The player must be initialized before performing this action.';
 
@@ -48,6 +48,14 @@ export class StreamPlayer implements IAudioPlayer {
         this.tracks = [];
         this.playerState = initialPlayerState;
         this.player = null;
+    }
+
+    public addEventListener<T extends keyof EventListeners>(eventName: T, listener: EventListeners[T]): void {
+        throw new Error('Not implemented');
+    }
+
+    public removeEventListener<T extends keyof EventListeners>(eventName: T, listener: EventListeners[T]): void {
+        throw new Error('Not implemented');
     }
 
     public async setTracks(tracks: Track[]): Promise<void> {

@@ -13,6 +13,7 @@ import SourceBrowser from './components/source-browser';
 export interface Props extends RouteComponentProps<any> {
 	isHubConnected: boolean;
 	selectedSource: string;
+	selectAudioSource(key: string): void;
 }
 
 export interface State {
@@ -50,7 +51,7 @@ class AudioView extends React.Component<Props, State> {
 					{ audioSourceService.availableSources.map(x => (
 						<button key={x.key} onClick={ async () => {
 							const audioSource = await audioSourceService.setActiveSource(x.key);
-							this.setState({ audioSource });
+							this.props.selectAudioSource(x.key);
 						} }>{x.key}</button>
 					)) }
 				</div>
@@ -73,7 +74,9 @@ const mapStateToProps = (state: AppState): any => ({
 	selectedSource: state.audio.selectedSource
 });
 
-const mapDispatchToProps = (dispatch: Dispatch<Action>): any => ({});
+const mapDispatchToProps = (dispatch: Dispatch<Action>): any => ({
+	selectAudioSource: (key: string) => { dispatch({ type: 'AUDIO_SOURCE_SELECTED', source: key }); }
+});
 
 export default connect(
 	mapStateToProps,

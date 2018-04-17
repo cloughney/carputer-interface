@@ -14,11 +14,11 @@ export const appReducer = combineReducers<AppState>({
 
     audio: (state = { selectedSource: null }, action): AppState['audio'] => {
 
-        // switch (action.type) {
-        //     case '':
-        //         state.selectedSource = 'spt';
-        //         break;
-        // }
+        switch (action.type) {
+            case 'AUDIO_SOURCE_SELECTED':
+                state.selectedSource = action.source;
+                break;
+        }
 
         return state;
     }

@@ -1,10 +1,10 @@
-import { IAudioModule, AudioSource } from './audio';
+import { AudioModule, AudioSource } from './audio';
 import spotifyModule from './spotify';
 
-interface AudioModuleMap { [key: string]: IAudioModule }
+interface AudioModuleMap { [key: string]: AudioModule }
 
 class AudioSourceService {
-    private activeSourceContainer: { key: string, module: IAudioModule } | null;
+    private activeSourceContainer: { key: string, module: AudioModule } | null;
 
     public constructor(private readonly moduleMap: AudioModuleMap) {
         this.activeSourceContainer = null;
@@ -41,14 +41,14 @@ class AudioSourceService {
         return this.activeSource as AudioSource;
     }
 
-    private getSourceFromModule(key: string, audioModule: IAudioModule): AudioSource {
+    private getSourceFromModule(key: string, audioModule: AudioModule): AudioSource {
         const { browser, player } = audioModule;
         return { key, browser, player };
     }
 }
 
 export const audioSourceService = new AudioSourceService({
-    'spotify': spotifyModule as IAudioModule
+    'spotify': spotifyModule as AudioModule
 });
 
 export * from './audio';

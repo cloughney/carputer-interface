@@ -1,7 +1,7 @@
 .app-container {
     .app-nav {
         padding: 10px 25px;
-        font-size: 1.4em;
+        font-size: 2em;
 
         ul {
             clear: both;
@@ -15,6 +15,7 @@
 
             li {
                 flex-grow: 1;
+                flex-basis: 0;
                 list-style: none;
 
                 &:nth-of-type(2) { text-align: center; }

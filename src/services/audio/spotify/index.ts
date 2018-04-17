@@ -1,7 +1,7 @@
 import * as SpotifyWebApi from 'spotify-web-api-js';
 import { SpotifyLibraryBrowser } from './spotify-browser';
 import { SpotifyPlayer } from './spotify-player';
-import { IAudioModule } from '../audio';
+import { AudioModule } from '../audio';
 
 let isInitialized = false;
 
