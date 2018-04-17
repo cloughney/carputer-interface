@@ -2,7 +2,7 @@ import * as React from 'react';
 import { RouteComponentProps, Redirect, withRouter } from 'react-router';
 
 import { client } from 'services/hub';
-import { api } from 'services/audio/spotify';
+import spotify from 'services/audio/spotify';
 
 type ErrorHashResponse = { error: string };
 type SuccessHashResponse = { accessToken: string; };
@@ -115,7 +115,6 @@ export default class SpotifyConnect extends React.Component<SpotifyConnect.Props
 	}
 
 	private setAccessToken(accessToken: string): void {
-		console.log(accessToken);
-		api.setAccessToken(accessToken);
+		spotify.api.setAccessToken(accessToken);
 	}
 }

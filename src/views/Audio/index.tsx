@@ -28,13 +28,27 @@ class AudioView extends React.Component<Props, State> {
 	}
 
 	public async componentDidMount(): Promise<void> {
-		const audioSource = await audioSourceService.setActiveSource(this.props.selectedSource);
-		this.setState({ audioSource });
+		try {
+			const audioSource = await audioSourceService.setActiveSource(this.props.selectedSource);
+			this.setState({ audioSource });
+		} catch (err) {
+			// TODO display a quick message
+		}
 	}
 
 	public render() {
 		const { audioSource } = this.state;
 		const { url: matchedPath } = this.props.match;
+
+		if (audioSource === null) {
+			return (
+				<div>
+					{ audioSourceService.availableSources.map(x => (
+						<button key={x.key} onClick={ () => { audioSourceService.setActiveSource(x.key) } }>{x.key}</button>
+					)) }
+				</div>
+			);
+		} 
 
 		return (
 			<div className="audio">

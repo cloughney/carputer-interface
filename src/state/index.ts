@@ -1,5 +1,5 @@
 export interface AudioState {
-	selectedSource: string;
+	selectedSource: string | null;
 }
 
 export type AppState = Readonly<{

@@ -5,27 +5,32 @@ import { IAudioModule } from '../audio';
 
 let isInitialized = false;
 
-export const api = new SpotifyWebApi();
-export const browser = new SpotifyLibraryBrowser();
-export const player = new SpotifyPlayer();
+const api = new SpotifyWebApi();
+const browser = new SpotifyLibraryBrowser();
+const player = new SpotifyPlayer();
 
-export const initialize = async (): Promise<void> => {
+const initialize = async (): Promise<void> => {
     if (!isInitialized) {
         try {
             await player.initialize();
             isInitialized = true;
         } catch (err) {
-            console.log(err);
-            if (err.type === 'authentication') {
+            if (err.status === 401) {
                 window.location.hash = '#/spotify/connect'; // TODO where should this route live? The path should probably be stored somewhere global.
+                return;
             }
+
+            console.error(err);
+            throw new Error('Failed to initialize the Spotify audio source.');
         }
     }
 }
 
-export const dispose = async (): Promise<void> => {
+const dispose = async (): Promise<void> => {
     if (isInitialized) {
         await player.dispose();
         isInitialized = false;
     }
 }
+
+export default { api, browser, player, initialize, dispose };

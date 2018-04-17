@@ -1,5 +1,5 @@
 import { ILibraryBrowser, Category, Track, Album, Artist } from '..';
-import { api } from '.';
+import spotify from '.';
 
 export class SpotifyLibraryBrowser implements ILibraryBrowser {
     public construct() {
@@ -7,7 +7,7 @@ export class SpotifyLibraryBrowser implements ILibraryBrowser {
     }
 
     public async getCategories(): Promise<Category[]> {
-        const response = await api.getUserPlaylists();
+        const response = await spotify.api.getUserPlaylists();
         return response.items.map(x => ({
             id: x.id,
             name: x.name,

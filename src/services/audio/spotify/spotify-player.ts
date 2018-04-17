@@ -1,6 +1,6 @@
 import { client as hub } from 'services/hub';
 import { IAudioPlayer, AudioPlayerState, Track, defaultPlayerState } from '..';
-import { api } from '.';
+import spotify from '.';
 
 export interface EventListeners { 'stateUpdate': (state: AudioPlayerState) => void; }
 export type EventListenerMap = { [P in keyof EventListeners]: EventListeners[P][] };
@@ -23,22 +23,24 @@ export class SpotifyPlayer implements IAudioPlayer {
 
     public async initialize(): Promise<void> {
         // const response = await hub.request('spotify.player', 'initialize_player'); // TODO type the response
+
+        const { devices } = await spotify.api.getMyDevices();
+
+        const device = devices.find(x => x.name === 'krikCar');
+        if (device === undefined || device.id === null) {
+            throw new Error(`Cannot find a device with the name '${'krikCar'}'.`);
+        }
                 
-        // this.deviceId = response.deviceId;
-        // this.playerState = defaultPlayerState;
+        this.deviceId = device.id;
 
-        // await (api as any).transferMyPlayback([ this.deviceId ]);
+        await spotify.api.transferMyPlayback([ this.deviceId ]);
 
-        // const spotifyState = await api.getplayerstate
-        // if (spotifyState === null) {
-        //     this.playerState = defaultPlayerState;
-        //     return;
-        // }
+        // const spotifyState = await api.getMyCurrentPlaybackState();
+        // this.onStateUpdate(spotifyState);
 
-        //this.onStateUpdate(spotifyState);
-
-        this.playbackInterval = setInterval(() => {
-            //const response = await api.getplayerstate
+        this.playbackInterval = setInterval(async () => {
+            const spotifyState = await spotify.api.getMyCurrentPlaybackState();
+            this.onStateUpdate(spotifyState);
         }, 2000);
     }
 
@@ -91,26 +93,22 @@ export class SpotifyPlayer implements IAudioPlayer {
         }
     }
 
-    private onStateUpdate = (state: Spotify.PlaybackState): void => {
-        const { current_track: currentTrack } = state.track_window;
-
+    private onStateUpdate = (state: SpotifyApi.CurrentPlaybackResponse): void => {
         const playerState = this.playerState = {
             playback: {
-                isPlaying: !state.paused,
-                trackPosition: state.position
+                isPlaying: state.is_playing,
+                trackPosition: state.progress_ms || 0
             },
-            currentTrack: {
+            currentTrack: state.item === null ? null : {
                 uri: null,
                 id: null,
-                name: currentTrack.name,
-                duration: (currentTrack as any).duration_ms,
+                name: state.item.name,
+                duration: state.item.duration_ms,
                 album: {
-                    name: currentTrack.album.name,
+                    name: state.item.album.name,
                     images: []
                 },
-                artists: currentTrack.artists.map(x => ({
-                    name: x.name
-                }))
+                artists: state.item.artists.map(x => ({ name: x.name }))
             },
             nextTracks: [],
             previousTracks: []

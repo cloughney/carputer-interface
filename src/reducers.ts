@@ -12,7 +12,7 @@ export const appReducer = combineReducers<AppState>({
         return state;
     },
 
-    audio: (state = { selectedSource: 'spotify' }, action): AppState['audio'] => {
+    audio: (state = { selectedSource: null }, action): AppState['audio'] => {
 
         // switch (action.type) {
         //     case '':
