@@ -34,7 +34,7 @@
     "react-redux": "^5.0.5",
     "react-router-dom": "^4.1.2",
     "redux": "^3.7.2",
-    "spotify-web-api-js": "^0.23.0"
+    "spotify-web-api-js": "^0.24.0"
   },
   "devDependencies": {
     "@types/enzyme": "^2.8.4",

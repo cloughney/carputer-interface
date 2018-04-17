@@ -7,7 +7,7 @@ import Overlay from 'components/overlay';
 import './audio-player.scss';
 
 export interface Props {
-	audioSource: AudioSource | null;
+	audioSource: AudioSource;
 }
 
 export interface State {
@@ -28,9 +28,9 @@ export default class AudioPlayer extends React.Component<Props> {
 	}
 
 	public componentDidMount(): void {
-		this.playbackInterval = setInterval(() => {
+		// this.playbackInterval = setInterval(() => {
 			
-		}, 1000);
+		// }, 1000);
 	}
 
 	public render() {
@@ -38,21 +38,11 @@ export default class AudioPlayer extends React.Component<Props> {
 
 		return (
 			<div className="audio-player with-overlay">
-				<button onClick={ this.onPlayClick }>Play!</button>
-				<Overlay isVisible={ audioSource === null }>Initializing the audio source</Overlay>
+				<button onClick={ audioSource.player.play.bind(audioSource.player) }>Play</button>
+				<button onClick={ audioSource.player.pause.bind(audioSource.player) }>Pause</button>
+				<button onClick={ audioSource.player.previousTrack.bind(audioSource.player) }>Previous</button>
+				<button onClick={ audioSource.player.nextTrack.bind(audioSource.player) }>Next</button>
 			</div>
 		);
-	}
-
-	private onPlayClick = async (): Promise<void> => {
-		if (this.props.audioSource !== null) {
-			this.props.audioSource.player.play();
-		}
-	}
-
-	private onPauseClick = async (): Promise<void> => {
-		if (this.props.audioSource !== null) {
-			this.props.audioSource.player.pause();
-		}
 	}
 }

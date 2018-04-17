@@ -38,10 +38,10 @@ export class SpotifyPlayer implements IAudioPlayer {
         // const spotifyState = await api.getMyCurrentPlaybackState();
         // this.onStateUpdate(spotifyState);
 
-        this.playbackInterval = setInterval(async () => {
-            const spotifyState = await spotify.api.getMyCurrentPlaybackState();
-            this.onStateUpdate(spotifyState);
-        }, 2000);
+        // this.playbackInterval = setInterval(async () => {
+        //     const spotifyState = await spotify.api.getMyCurrentPlaybackState();
+        //     this.onStateUpdate(spotifyState);
+        // }, 2000);
     }
 
     public async dispose(): Promise<void> {
@@ -71,25 +71,25 @@ export class SpotifyPlayer implements IAudioPlayer {
 
     public async play(): Promise<void> {
         if (this.deviceId !== null) {
-            //await api.play
+            await spotify.api.play({ device_id: this.deviceId });
         }
     }
 
     public async pause(): Promise<void> {
         if (this.deviceId !== null) {
-            //await api.pause
+            await spotify.api.pause({ device_id: this.deviceId });
         }
     }
 
     public async nextTrack(): Promise<void> {
         if (this.deviceId !== null) {
-            //await api.next
+            await spotify.api.skipToNext({ device_id: this.deviceId });
         }
     }
 
     public async previousTrack(): Promise<void> {
         if (this.deviceId !== null) {
-            //await api.prev
+            await spotify.api.skipToPrevious({ device_id: this.deviceId });
         }
     }
 
