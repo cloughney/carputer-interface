@@ -114,12 +114,10 @@ export class SpotifyPlayer implements IAudioPlayer {
                 duration: spotifyState.item.duration_ms,
                 album: {
                     name: spotifyState.item.album.name,
-                    images: spotifyState.item.album.images.map(x => x.url)
+                    image: spotifyState.item.album.images.length > 0 ? spotifyState.item.album.images[0].url : ''
                 },
                 artists: spotifyState.item.artists.map(x => ({ name: x.name }))
-            },
-            nextTracks: [],
-            previousTracks: []
+            }
         };
 
         this.eventListenerMap.stateUpdate.forEach(x => x(playerState));

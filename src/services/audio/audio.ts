@@ -1,6 +1,6 @@
 export interface Album {
     name: string;
-    images: string[];
+    image: string;
 }
 
 export interface Artist {
@@ -30,8 +30,6 @@ export interface PlaybackState {
 export interface AudioPlayerState {
     playback: PlaybackState;
     currentTrack: Track | null;
-    previousTracks: Track[];
-    nextTracks: Track[];
 }
 
 export interface AudioPlayerEventListeners { 'stateUpdate': (state: AudioPlayerState) => void; }

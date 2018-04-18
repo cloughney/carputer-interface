@@ -15,7 +15,6 @@ interface PlaybackProps {
 }
 
 interface ControlProps {
-	audioSource: AudioSource;
 	isPlaying: boolean;
 	controlPlayback(command: PlaybackCommandType): void;
 }
@@ -39,7 +38,7 @@ const PlaybackDetails: React.SFC<PlaybackProps> = ({ currentTrack, trackPosition
 
 	return (
 		<div className="details">
-			<div className="album-art"><img src={currentTrack.album.images[0]} /></div>
+			<div className="album-art"><img src={currentTrack.album.image} /></div>
 			<div className="playback">
 				<div className="title">{ currentTrack.name }</div>
 				<div className="artist">{ currentTrack.artists.map(x => x.name).join(', ') }</div>
@@ -50,7 +49,7 @@ const PlaybackDetails: React.SFC<PlaybackProps> = ({ currentTrack, trackPosition
 	)
 }
 
-const PlaybackControls: React.SFC<ControlProps> = ({ audioSource, isPlaying, controlPlayback }) => {
+const PlaybackControls: React.SFC<ControlProps> = ({ isPlaying, controlPlayback }) => {
 	const togglePlayButton = isPlaying
 		? <button className="pause" onClick={ () => controlPlayback('pause') } />
 		: <button className="play" onClick={ () => controlPlayback('play') } />;
@@ -108,15 +107,14 @@ export default class AudioPlayer extends React.Component<Props, State> {
 		const { isPlaying, currentTrack, trackPosition, trackDuration } = this.state;
 		const { audioSource } = this.props;
 
-		const backgroundImage = currentTrack !== null ? `url('${currentTrack.album.images[0]}')` : null;
+		const backgroundImage = currentTrack !== null ? `url('${currentTrack.album.image}')` : null;
 
 		return (
 			<div className="audio-player">
 				<div className="cover-art" style={{ backgroundImage }} />
 				<div className="player">
 					<PlaybackDetails currentTrack={currentTrack} trackPosition={trackPosition} trackDuration={trackDuration} />
-
-					<PlaybackControls audioSource={audioSource} isPlaying={isPlaying} controlPlayback={this.onPlayerControlClick} />
+					<PlaybackControls isPlaying={isPlaying} controlPlayback={this.onPlayerControlClick} />
 				</div>
 			</div>
 		);
@@ -145,6 +143,7 @@ export default class AudioPlayer extends React.Component<Props, State> {
 		});
 	}
 
+	//TODO add shuffle/repeat
 	private onPlayerControlClick = async (command: PlaybackCommandType): Promise<void> => {
 		switch (command) {
 			case 'play':
