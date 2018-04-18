@@ -1,25 +1,15 @@
-import { IAudioPlayer, Track, AudioPlayerEventListeners as EventListeners } from '.';
+import { IAudioPlayer, AudioPlayerState, Track, AudioPlayerEventListeners as EventListeners, defaultPlayerState } from '.';
 
 const uninitializedPlayerError = 'The player must be initialized before performing this action.';
 
-const initialPlayerState = {
-    isPlaying: false,
-    currentTrack: null
-};
-
-interface PlayerState {
-    isPlaying: boolean;
-    currentTrack: Track | null;
-}
-
 export class StreamPlayer implements IAudioPlayer {
     private player: HTMLAudioElement | null;
-    private playerState: PlayerState;
+    private playerState: AudioPlayerState;
     private tracks: Track[];
 
     public constructor() {
         this.player = null;
-        this.playerState = initialPlayerState;
+        this.playerState = defaultPlayerState;
 
         this.tracks = [];
     }
@@ -33,8 +23,8 @@ export class StreamPlayer implements IAudioPlayer {
             this.player = document.createElement('audio');
             this.player.setAttribute('preload', 'none');
 
-            this.player.onplaying = e => { this.playerState.isPlaying = true; };
-            this.player.onpause = e => { this.playerState.isPlaying = false; };
+            this.player.onplaying = e => { this.playerState.playback.isPlaying = true; };
+            this.player.onpause = e => { this.playerState.playback.isPlaying = false; };
 
             //TODO setup more events
         });
@@ -46,7 +36,7 @@ export class StreamPlayer implements IAudioPlayer {
         }
 
         this.tracks = [];
-        this.playerState = initialPlayerState;
+        this.playerState = defaultPlayerState;
         this.player = null;
     }
 
@@ -61,6 +51,10 @@ export class StreamPlayer implements IAudioPlayer {
     public async setTracks(tracks: Track[]): Promise<void> {
         this.tracks = tracks;
         this.setActiveTrack(tracks[0]);
+    }
+
+    public async getCurrentState(): Promise<AudioPlayerState> {
+        return this.playerState;
     }
 
     public async play(): Promise<void> {

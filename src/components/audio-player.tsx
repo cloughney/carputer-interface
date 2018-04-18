@@ -90,8 +90,13 @@ export default class AudioPlayer extends React.Component<Props, State> {
 		this.playbackInterval = null;
 	}
 
-	public componentDidMount(): void {
-		this.props.audioSource.player.addEventListener('stateUpdate', this.onStateUpdate);
+	public async componentDidMount(): Promise<void> {
+		const { player } = this.props.audioSource;
+		
+		const playerState = await player.getCurrentState();
+		this.onStateUpdate(playerState);
+
+		player.addEventListener('stateUpdate', this.onStateUpdate);
 		this.playbackInterval = setInterval(this.onPlaybackTick, 1000);
 	}
 
@@ -126,7 +131,13 @@ export default class AudioPlayer extends React.Component<Props, State> {
 				return state;
 			}
 
-			if ((state.trackDuration - state.trackPosition) < 1000) {
+			const msUntilEnd = state.trackDuration - state.trackPosition;
+			if (msUntilEnd < 1000) {
+				setTimeout(async () => {
+					const playerState = await this.props.audioSource.player.getCurrentState();
+					this.onStateUpdate(playerState);
+				}, msUntilEnd + 500);
+
 				return state;
 			}
 
@@ -145,20 +156,24 @@ export default class AudioPlayer extends React.Component<Props, State> {
 
 	//TODO add shuffle/repeat
 	private onPlayerControlClick = async (command: PlaybackCommandType): Promise<void> => {
+		const { player } = this.props.audioSource;
+
 		switch (command) {
 			case 'play':
-				await this.props.audioSource.player.play();
+				await player.play();
 				this.setState({ isPlaying: true });
 				break;
 			case 'pause':
-				await this.props.audioSource.player.pause();
+				await player.pause();
 				this.setState({ isPlaying: false });
 				break;
 			case 'next':
-				this.props.audioSource.player.nextTrack();
+				await player.nextTrack();
+				setTimeout(async () => this.onStateUpdate(await player.getCurrentState()), 500);
 				break;
 			case 'previous':
-				this.props.audioSource.player.previousTrack();
+				await player.previousTrack();
+				setTimeout(async () => this.onStateUpdate(await player.getCurrentState()), 500);
 				break;
 		}
 	}

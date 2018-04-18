@@ -42,6 +42,8 @@ export interface IAudioPlayer {
     addEventListener<T extends keyof AudioPlayerEventListeners>(eventName: T, listener: AudioPlayerEventListeners[T]): void;
     removeEventListener<T extends keyof AudioPlayerEventListeners>(eventName: T, listener: AudioPlayerEventListeners[T]): void;
 
+    getCurrentState(): Promise<AudioPlayerState>;
+
     setTracks(tracks: Track[]): Promise<void>;
 
     play(): Promise<void>;

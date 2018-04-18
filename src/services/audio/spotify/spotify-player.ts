@@ -2,6 +2,8 @@ import { client as hub } from 'services/hub';
 import { IAudioPlayer, AudioPlayerState, AudioPlayerEventListeners as EventListeners, AudioPlayerEventListenerMap, Track, defaultPlayerState } from '..';
 import spotify from '.';
 
+const spotifyStatePollIntervalMs = 5000;
+
 export class SpotifyPlayer implements IAudioPlayer {
     private readonly eventListenerMap: AudioPlayerEventListenerMap;
     private deviceId: string | null;
@@ -31,10 +33,10 @@ export class SpotifyPlayer implements IAudioPlayer {
 
         this.deviceId = device.id;
         await spotify.api.transferMyPlayback([ this.deviceId ]);
-                
-        await this.updateState();
 
-        this.playbackInterval = setInterval(this.updateState, 10000);
+        if (this.eventListenerMap.stateUpdate.length > 0) {
+            this.playbackInterval = setInterval(this.updateState, spotifyStatePollIntervalMs);
+        }
     }
 
     public async dispose(): Promise<void> {
@@ -43,6 +45,7 @@ export class SpotifyPlayer implements IAudioPlayer {
         }
 
         clearInterval(this.playbackInterval);
+        this.playbackInterval = null;
 
         Object.getOwnPropertyNames(this.eventListenerMap).forEach(x => {
             this.eventListenerMap[x as keyof EventListeners] = [];
@@ -55,8 +58,10 @@ export class SpotifyPlayer implements IAudioPlayer {
     public addEventListener<T extends keyof EventListeners>(eventName: T, listener: EventListeners[T]): void {
         this.eventListenerMap[eventName].push(listener);
 
-        if (eventName === 'stateUpdate' && this.playerState !== null) {
-            listener(this.playerState);
+        if (eventName === 'stateUpdate') {
+            if (this.eventListenerMap.stateUpdate.length === 1 && this.playbackInterval === null) {
+                this.playbackInterval = setInterval(this.updateState, spotifyStatePollIntervalMs);
+            }
         }
     }
 
@@ -67,6 +72,16 @@ export class SpotifyPlayer implements IAudioPlayer {
         }
         
         this.eventListenerMap[eventName].splice(listenerIndex, 1);
+
+        if (eventName === 'stateUpdate' && this.playbackInterval && this.eventListenerMap.stateUpdate.length === 0) {
+            clearInterval(this.playbackInterval);
+            this.playbackInterval = null;
+        }
+    }
+
+    public async getCurrentState(): Promise<AudioPlayerState> {
+        await this.updateState(false);
+        return this.playerState as AudioPlayerState;
     }
 
     public async setTracks(tracks: Track[]): Promise<void> {
@@ -99,7 +114,7 @@ export class SpotifyPlayer implements IAudioPlayer {
         }
     }
 
-    private updateState = async (): Promise<void> => {
+    private updateState = async (notify: boolean = true): Promise<void> => {
         const spotifyState = await spotify.api.getMyCurrentPlaybackState();
         
         const playerState = this.playerState = {
@@ -120,6 +135,8 @@ export class SpotifyPlayer implements IAudioPlayer {
             }
         };
 
-        this.eventListenerMap.stateUpdate.forEach(x => x(playerState));
+        if (notify) {
+            this.eventListenerMap.stateUpdate.forEach(x => x(playerState));
+        }
     }
 }
