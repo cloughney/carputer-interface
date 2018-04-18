@@ -28,15 +28,13 @@ export class SpotifyPlayer implements IAudioPlayer {
         if (device === undefined || device.id === null) {
             throw new Error(`Cannot find a device with the name '${deviceName}'.`);
         }
-                
+
         this.deviceId = device.id;
-
         await spotify.api.transferMyPlayback([ this.deviceId ]);
+                
+        await this.updateState();
 
-        this.playbackInterval = setInterval(async () => {
-            const spotifyState = await spotify.api.getMyCurrentPlaybackState();
-            this.onStateUpdate(spotifyState);
-        }, 2000);
+        this.playbackInterval = setInterval(this.updateState, 10000);
     }
 
     public async dispose(): Promise<void> {
@@ -56,10 +54,18 @@ export class SpotifyPlayer implements IAudioPlayer {
 
     public addEventListener<T extends keyof EventListeners>(eventName: T, listener: EventListeners[T]): void {
         this.eventListenerMap[eventName].push(listener);
+
+        if (eventName === 'stateUpdate' && this.playerState !== null) {
+            listener(this.playerState);
+        }
     }
 
     public removeEventListener<T extends keyof EventListeners>(eventName: T, listener: EventListeners[T]): void {
         const listenerIndex = this.eventListenerMap[eventName].indexOf(listener);
+        if (listenerIndex === -1) {
+            return;
+        }
+        
         this.eventListenerMap[eventName].splice(listenerIndex, 1);
     }
 
@@ -93,22 +99,24 @@ export class SpotifyPlayer implements IAudioPlayer {
         }
     }
 
-    private onStateUpdate = (state: SpotifyApi.CurrentPlaybackResponse): void => {
+    private updateState = async (): Promise<void> => {
+        const spotifyState = await spotify.api.getMyCurrentPlaybackState();
+        
         const playerState = this.playerState = {
             playback: {
-                isPlaying: state.is_playing,
-                trackPosition: state.progress_ms || 0
+                isPlaying: spotifyState.is_playing,
+                trackPosition: spotifyState.progress_ms || 0
             },
-            currentTrack: state.item === null ? null : {
+            currentTrack: spotifyState.item === null ? null : {
                 uri: null,
                 id: null,
-                name: state.item.name,
-                duration: state.item.duration_ms,
+                name: spotifyState.item.name,
+                duration: spotifyState.item.duration_ms,
                 album: {
-                    name: state.item.album.name,
-                    images: []
+                    name: spotifyState.item.album.name,
+                    images: spotifyState.item.album.images.map(x => x.url)
                 },
-                artists: state.item.artists.map(x => ({ name: x.name }))
+                artists: spotifyState.item.artists.map(x => ({ name: x.name }))
             },
             nextTracks: [],
             previousTracks: []

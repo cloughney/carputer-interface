@@ -12,47 +12,24 @@ import SourceBrowser from './components/source-browser';
 
 export interface Props extends RouteComponentProps<any> {
 	isHubConnected: boolean;
-	selectedSource: string;
-	selectAudioSource(key: string): void;
+	selectedSource: AudioSource;
+	selectAudioSource(source: AudioSource): void;
 }
 
-export interface State {
-	audioSource: AudioSource | null;
-}
-
-class AudioView extends React.Component<Props, State> {
+class AudioView extends React.Component<Props> {
 	public constructor(props: Props) {
 		super(props);
-		this.state = {
-			audioSource: null
-		}
-	}
-
-	public async componentDidMount(): Promise<void> {
-		if (this.props.selectedSource === null) {
-			return;
-		}
-
-		try {
-			const audioSource = await audioSourceService.setActiveSource(this.props.selectedSource);
-			this.setState({ audioSource });
-		} catch (err) {
-			// TODO display a quick message
-		}
 	}
 
 	public render() {
-		const { audioSource } = this.state;
+		const { selectedSource } = this.props;
 		const { url: matchedPath } = this.props.match;
 
-		if (audioSource === null) {
+		if (selectedSource === null) {
 			return (
-				<div>
+				<div className="audio">
 					{ audioSourceService.availableSources.map(x => (
-						<button key={x.key} onClick={ async () => {
-							const audioSource = await audioSourceService.setActiveSource(x.key);
-							this.props.selectAudioSource(x.key);
-						} }>{x.key}</button>
+						<button key={x.key} onClick={ () => this.onAudioSourceSelected(x.key) }>{x.key}</button>
 					)) }
 				</div>
 			);
@@ -61,11 +38,25 @@ class AudioView extends React.Component<Props, State> {
 		return (
 			<div className="audio">
 				<Switch>
-					<Route exact path={ matchedPath } render={ props => <AudioPlayer audioSource={ audioSource } { ...props } /> } />
-					<Route path={ `${matchedPath}/browse` } render={ props => <SourceBrowser audioSource={ audioSource } { ...props } /> } />
+					<Route exact path={ matchedPath } render={ props => <AudioPlayer audioSource={ selectedSource } { ...props } /> } />
+					<Route path={ `${matchedPath}/browse` } render={ props => <SourceBrowser audioSource={ selectedSource } { ...props } /> } />
 				</Switch>
 			</div>
 		);
+	}
+
+	private onAudioSourceSelected = async (key: string): Promise<void> => {
+		try {
+			const audioSource = await audioSourceService.setActiveSource(key);
+			this.props.selectAudioSource(audioSource);
+		} catch (err) {
+			if (err.type === 'authentication') {
+				this.props.history.push(err.route);
+				return;
+			}
+
+			throw err;
+		}
 	}
 }
 
@@ -74,8 +65,8 @@ const mapStateToProps = (state: AppState): any => ({
 	selectedSource: state.audio.selectedSource
 });
 
-const mapDispatchToProps = (dispatch: Dispatch<Action>): any => ({
-	selectAudioSource: (key: string) => { dispatch({ type: 'AUDIO_SOURCE_SELECTED', source: key }); }
+const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
+	selectAudioSource: (source: AudioSource) => { dispatch({ type: 'AUDIO_SOURCE_SELECTED', source }); }
 });
 
 export default connect(

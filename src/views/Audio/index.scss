@@ -1,3 +1,7 @@
 .app-content > .audio {
     height: 100%;
+
+    > button {
+        font-size: 3em;
+    }
 }

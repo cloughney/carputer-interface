@@ -16,12 +16,10 @@ const initialize = async (): Promise<void> => {
             isInitialized = true;
         } catch (err) {
             if (err.status === 401) {
-                window.location.hash = '#/spotify/connect'; // TODO where should this route live? The path should probably be stored somewhere global.
-                return;
+                throw { type: 'authentication', route: '/spotify/connect' };
             }
 
-            console.error(err);
-            throw new Error('Failed to initialize the Spotify audio source.');
+            throw err;
         }
     }
 }

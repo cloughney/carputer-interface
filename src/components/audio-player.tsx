@@ -1,17 +1,78 @@
 import * as React from 'react';
 import { RouteComponentProps, Redirect, withRouter } from 'react-router';
 
-import { AudioSource, AudioPlayerState, defaultPlayerState } from 'services/audio';
+import { AudioSource, AudioPlayerState, Track, defaultPlayerState } from 'services/audio';
 import Overlay from 'components/overlay';
 
 import './audio-player.scss';
+
+type PlaybackCommandType = 'play' | 'pause' | 'next' | 'previous';
+
+interface PlaybackProps {
+	currentTrack: Track | null;
+	trackPosition: number | null;
+	trackDuration: number | null;
+}
+
+interface ControlProps {
+	audioSource: AudioSource;
+	isPlaying: boolean;
+	controlPlayback(command: PlaybackCommandType): void;
+}
+
+const PlaybackDetails: React.SFC<PlaybackProps> = ({ currentTrack, trackPosition, trackDuration }) => {
+	function getPrettyTime(ms: number | null): string {
+		if (ms === null) {
+			return '0:00';
+		}
+
+		let seconds = Math.floor(ms / 1000);
+		let minutes = Math.floor(seconds / 60);
+		seconds -= minutes * 60;
+	
+		return `${minutes}:${seconds > 9 ? seconds : '0' + seconds}`;
+	}
+
+	if (currentTrack === null) {
+		return null;
+	}
+
+	return (
+		<div className="details">
+			<div className="album-art"><img src={currentTrack.album.images[0]} /></div>
+			<div className="playback">
+				<div className="title">{ currentTrack.name }</div>
+				<div className="artist">{ currentTrack.artists.map(x => x.name).join(', ') }</div>
+				<div className="album">{ currentTrack.album.name }</div>
+				<div className="time">{ getPrettyTime(trackPosition) }/{ getPrettyTime(trackDuration) }</div>
+			</div>
+		</div>
+	)
+}
+
+const PlaybackControls: React.SFC<ControlProps> = ({ audioSource, isPlaying, controlPlayback }) => {
+	const togglePlayButton = isPlaying
+		? <button className="pause" onClick={ () => controlPlayback('pause') } />
+		: <button className="play" onClick={ () => controlPlayback('play') } />;
+
+	return (
+		<div className="controls">
+			<button className="previous" onClick={ () => controlPlayback('previous') } />
+			{ togglePlayButton }
+			<button className="next" onClick={ () => controlPlayback('next') } />
+		</div>
+	)
+}
 
 export interface Props {
 	audioSource: AudioSource;
 }
 
 export interface State {
-	playerState: AudioPlayerState;
+	isPlaying: boolean;
+	currentTrack: Track | null;
+	trackPosition: number | null;
+	trackDuration: number | null;
 }
 
 export default class AudioPlayer extends React.Component<Props, State> {
@@ -21,7 +82,10 @@ export default class AudioPlayer extends React.Component<Props, State> {
 		super(props);
 
 		this.state = {
-			playerState: defaultPlayerState
+			isPlaying: false,
+			currentTrack: null,
+			trackPosition: null,
+			trackDuration: null
 		};
 
 		this.playbackInterval = null;
@@ -29,37 +93,74 @@ export default class AudioPlayer extends React.Component<Props, State> {
 
 	public componentDidMount(): void {
 		this.props.audioSource.player.addEventListener('stateUpdate', this.onStateUpdate);
-		// this.playbackInterval = setInterval(() => {
-			
-		// }, 1000);
+		this.playbackInterval = setInterval(this.onPlaybackTick, 1000);
 	}
 
 	public componentWillUnmount(): void {
+		if (this.playbackInterval) {
+			clearInterval(this.playbackInterval);
+		}
+
 		this.props.audioSource.player.removeEventListener('stateUpdate', this.onStateUpdate);
 	}
 
 	public render() {
+		const { isPlaying, currentTrack, trackPosition, trackDuration } = this.state;
 		const { audioSource } = this.props;
-		const { playerState } = this.state;
+
+		const backgroundImage = currentTrack !== null ? `url('${currentTrack.album.images[0]}')` : null;
 
 		return (
 			<div className="audio-player">
-				{ playerState.currentTrack !== null ?
-					<div>
-						<div>{  playerState.currentTrack.name }</div>
-						<div>{ playerState.playback.trackPosition }/{ playerState.currentTrack.duration }</div>
-					</div>
-				: null }
+				<div className="cover-art" style={{ backgroundImage }} />
+				<div className="player">
+					<PlaybackDetails currentTrack={currentTrack} trackPosition={trackPosition} trackDuration={trackDuration} />
 
-				<button onClick={ audioSource.player.play.bind(audioSource.player) }>Play</button>
-				<button onClick={ audioSource.player.pause.bind(audioSource.player) }>Pause</button>
-				<button onClick={ audioSource.player.previousTrack.bind(audioSource.player) }>Previous</button>
-				<button onClick={ audioSource.player.nextTrack.bind(audioSource.player) }>Next</button>
+					<PlaybackControls audioSource={audioSource} isPlaying={isPlaying} controlPlayback={this.onPlayerControlClick} />
+				</div>
 			</div>
 		);
 	}
 
+	private onPlaybackTick = (): void => {
+		this.setState(state => {
+			if (!state.isPlaying || state.trackPosition === null || state.trackDuration === null) {
+				return state;
+			}
+
+			if ((state.trackDuration - state.trackPosition) < 1000) {
+				return state;
+			}
+
+			return { ...state, trackPosition: state.trackPosition + 1000 };
+		});
+	}
+
 	private onStateUpdate = (state: AudioPlayerState): void => {
-		this.setState({ playerState: state });
+		this.setState({
+			isPlaying: state.playback.isPlaying,
+			currentTrack: state.currentTrack,
+			trackPosition: state.playback.trackPosition,
+			trackDuration: state.currentTrack !== null ? state.currentTrack.duration : null
+		});
+	}
+
+	private onPlayerControlClick = async (command: PlaybackCommandType): Promise<void> => {
+		switch (command) {
+			case 'play':
+				await this.props.audioSource.player.play();
+				this.setState({ isPlaying: true });
+				break;
+			case 'pause':
+				await this.props.audioSource.player.pause();
+				this.setState({ isPlaying: false });
+				break;
+			case 'next':
+				this.props.audioSource.player.nextTrack();
+				break;
+			case 'previous':
+				this.props.audioSource.player.previousTrack();
+				break;
+		}
 	}
 }

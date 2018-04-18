@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux';
-
 import { AppState } from 'state';
 
 export const appReducer = combineReducers<AppState>({
@@ -16,8 +15,7 @@ export const appReducer = combineReducers<AppState>({
 
         switch (action.type) {
             case 'AUDIO_SOURCE_SELECTED':
-                state.selectedSource = action.source;
-                break;
+                return { ...state, selectedSource: action.source };
         }
 
         return state;

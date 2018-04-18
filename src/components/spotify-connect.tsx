@@ -45,6 +45,9 @@ export default class SpotifyConnect extends React.Component<SpotifyConnect.Props
 	}
 
 	public componentDidMount(): void {
+		client.removeEventListener('spotify.access_token_refreshed', this.onAccessTokenRefreshed);
+		client.addEventListener('spotify.access_token_refreshed', this.onAccessTokenRefreshed);
+
 		// Check for a response from initial authentication.
 		const hash = this.getResponseFromQuery();
 		if (this.isErrorResponse(hash)) {
@@ -116,5 +119,9 @@ export default class SpotifyConnect extends React.Component<SpotifyConnect.Props
 
 	private setAccessToken(accessToken: string): void {
 		spotify.api.setAccessToken(accessToken);
+	}
+
+	private onAccessTokenRefreshed = ({ accessToken }: { accessToken: string }): void => {
+		this.setAccessToken(accessToken);
 	}
 }

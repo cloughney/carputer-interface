@@ -1,5 +1,7 @@
+import { AudioSource } from 'services/audio';
+
 export interface AudioState {
-	selectedSource: string | null;
+	selectedSource: AudioSource | null;
 }
 
 export type AppState = Readonly<{

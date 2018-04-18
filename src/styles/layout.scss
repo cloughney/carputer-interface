@@ -1,12 +1,13 @@
 @import '../styles/bootstrap.scss';
 
+* {
+	cursor: none !important;
+	user-select: none;
+}
+
 body, html {
 	height: 100%;
 	min-height: 100%;
-
-	cursor: none;
-	a { cursor: none; }
-	//user-select: none;
 
 	#app {
 		height: 100%;
