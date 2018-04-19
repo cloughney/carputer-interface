@@ -13,6 +13,9 @@ export type SELECT_AUDIO_SOURCE_SUCCESS = typeof SELECT_AUDIO_SOURCE_SUCCESS;
 export const SELECT_AUDIO_SOURCE_FAILURE = 'SELECT_AUDIO_SOURCE_FAILURE';
 export type SELECT_AUDIO_SOURCE_FAILURE = typeof SELECT_AUDIO_SOURCE_FAILURE;
 
+export const CLEAR_AUDIO_SOURCE_ERROR = 'CLEAR_AUDIO_SOURCE_ERROR';
+export type CLEAR_AUDIO_SOURCE_ERROR = typeof CLEAR_AUDIO_SOURCE_ERROR;
+
 export interface SelectAudioSourceBegin {
     type: SELECT_AUDIO_SOURCE;
 }
@@ -27,7 +30,11 @@ export interface SelectAudioSourceFailure {
     error: string;
 }
 
-export type SelectAudioSource = SelectAudioSourceBegin | SelectAudioSourceSuccess | SelectAudioSourceFailure;
+export interface ClearAudioSourceError {
+    type: CLEAR_AUDIO_SOURCE_ERROR;
+}
+
+export type SelectAudioSource = SelectAudioSourceBegin | SelectAudioSourceSuccess | SelectAudioSourceFailure | ClearAudioSourceError;
 
 const switchAudioSource = (): SelectAudioSource => ({ type: SELECT_AUDIO_SOURCE });
 const receiveAudioSource = (source: AudioSource): SelectAudioSourceSuccess => ({ type: SELECT_AUDIO_SOURCE_SUCCESS, source });
@@ -46,3 +53,5 @@ export const selectAudioSource: ActionCreator<ThunkAction<Promise<void>, AppStat
         }
     }
 }
+
+export const clearAudioSourceError: ActionCreator<ClearAudioSourceError> = () => ({ type: CLEAR_AUDIO_SOURCE_ERROR });

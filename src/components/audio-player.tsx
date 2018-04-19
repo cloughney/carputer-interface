@@ -64,7 +64,7 @@ const PlaybackControls: React.SFC<ControlProps> = ({ isPlaying, controlPlayback 
 }
 
 export interface Props {
-	audioSource: AudioSource;
+	audioSource: AudioSource | null;
 }
 
 export interface State {
@@ -91,13 +91,16 @@ export default class AudioPlayer extends React.Component<Props, State> {
 	}
 
 	public async componentDidMount(): Promise<void> {
-		const { player } = this.props.audioSource;
+		const { audioSource } = this.props;
+		if (audioSource === null) {
+			return;
+		}
 		
-		const playerState = await player.getCurrentState();
+		const playerState = await audioSource.player.getCurrentState();
 		this.onStateUpdate(playerState);
 
-		player.addEventListener('stateUpdate', this.onStateUpdate);
-		this.playbackInterval = setInterval(this.onPlaybackTick, 1000);
+		audioSource.player.addEventListener('stateUpdate', this.onStateUpdate);
+		this.playbackInterval = setInterval(() => this.onPlaybackTick(audioSource), 1000);
 	}
 
 	public componentWillUnmount(): void {
@@ -105,13 +108,18 @@ export default class AudioPlayer extends React.Component<Props, State> {
 			clearInterval(this.playbackInterval);
 		}
 
-		this.props.audioSource.player.removeEventListener('stateUpdate', this.onStateUpdate);
+		if (this.props.audioSource) {
+			this.props.audioSource.player.removeEventListener('stateUpdate', this.onStateUpdate);
+		}
 	}
 
 	public render() {
-		const { isPlaying, currentTrack, trackPosition, trackDuration } = this.state;
 		const { audioSource } = this.props;
+		if (audioSource === null) {
+			return <Redirect to={'/audio'} />;
+		}
 
+		const { isPlaying, currentTrack, trackPosition, trackDuration } = this.state;
 		const backgroundImage = currentTrack !== null ? `url('${currentTrack.album.image}')` : null;
 
 		return (
@@ -119,13 +127,13 @@ export default class AudioPlayer extends React.Component<Props, State> {
 				<div className="cover-art" style={{ backgroundImage }} />
 				<div className="player">
 					<PlaybackDetails currentTrack={currentTrack} trackPosition={trackPosition} trackDuration={trackDuration} />
-					<PlaybackControls isPlaying={isPlaying} controlPlayback={this.onPlayerControlClick} />
+					<PlaybackControls isPlaying={isPlaying} controlPlayback={ command => this.onPlayerControlClick(audioSource, command) } />
 				</div>
 			</div>
 		);
 	}
 
-	private onPlaybackTick = (): void => {
+	private onPlaybackTick = (audioSource: AudioSource): void => {
 		this.setState(state => {
 			if (!state.isPlaying || state.trackPosition === null || state.trackDuration === null) {
 				return state;
@@ -134,7 +142,7 @@ export default class AudioPlayer extends React.Component<Props, State> {
 			const msUntilEnd = state.trackDuration - state.trackPosition;
 			if (msUntilEnd < 1000) {
 				setTimeout(async () => {
-					const playerState = await this.props.audioSource.player.getCurrentState();
+					const playerState = await audioSource.player.getCurrentState();
 					this.onStateUpdate(playerState);
 				}, msUntilEnd + 500);
 
@@ -155,8 +163,8 @@ export default class AudioPlayer extends React.Component<Props, State> {
 	}
 
 	//TODO add shuffle/repeat
-	private onPlayerControlClick = async (command: PlaybackCommandType): Promise<void> => {
-		const { player } = this.props.audioSource;
+	private onPlayerControlClick = async (audioSource: AudioSource, command: PlaybackCommandType): Promise<void> => {
+		const { player } = audioSource;
 
 		switch (command) {
 			case 'play':

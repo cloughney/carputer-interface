@@ -23,12 +23,13 @@ export default class SourceBrowser extends React.Component<Props, State> {
     }
 
     public async componentDidMount(): Promise<void> {
-        if (this.props.audioSource === null) {
+        const { audioSource } = this.props;
+        if (audioSource === null) {
             return;
         }
 
 		try {
-			const categories = await this.props.audioSource.browser.getCategories();
+			const categories = await audioSource.browser.getCategories();
 			this.setState({ items: categories });
 		} catch (err) {
 			if (err instanceof XMLHttpRequest && err.status === 401) {

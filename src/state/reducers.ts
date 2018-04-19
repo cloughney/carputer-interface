@@ -35,6 +35,8 @@ export const appReducer = combineReducers<AppState>({
                     selectedSource: null,
                     sourceError: action.error
                 };
+            case Actions.CLEAR_AUDIO_SOURCE_ERROR:
+                return { ...state, sourceError: null };
             
             default: return state;
         }
