@@ -161,7 +161,7 @@ export class Client {
                 }
             });
 
-            setTimeout(() => {
+            window.setTimeout(() => {
                 reject('The request has timed out.');
                 this.requestResolutionMap.delete(requestId);
             }, 10000);
@@ -277,7 +277,7 @@ export class Client {
             this.eventListeners['disconnect'].forEach(listener => listener(undefined));
         }
 
-        const reconnectInterval = setInterval(() => {
+        const reconnectInterval = window.setInterval(() => {
             if (this.isConnected) {
                 clearInterval(reconnectInterval);
                 return;

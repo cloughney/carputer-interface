@@ -100,7 +100,7 @@ export default class AudioPlayer extends React.Component<Props, State> {
 		this.onStateUpdate(playerState);
 
 		audioSource.player.addEventListener('stateUpdate', this.onStateUpdate);
-		this.playbackInterval = setInterval(() => this.onPlaybackTick(audioSource), 1000);
+		this.playbackInterval = window.setInterval(() => this.onPlaybackTick(audioSource), 1000);
 	}
 
 	public componentWillUnmount(): void {
@@ -141,7 +141,7 @@ export default class AudioPlayer extends React.Component<Props, State> {
 
 			const msUntilEnd = state.trackDuration - state.trackPosition;
 			if (msUntilEnd < 1000) {
-				setTimeout(async () => {
+				window.setTimeout(async () => {
 					const playerState = await audioSource.player.getCurrentState();
 					this.onStateUpdate(playerState);
 				}, msUntilEnd + 500);
@@ -177,11 +177,11 @@ export default class AudioPlayer extends React.Component<Props, State> {
 				break;
 			case 'next':
 				await player.nextTrack();
-				setTimeout(async () => this.onStateUpdate(await player.getCurrentState()), 500);
+				window.setTimeout(async () => this.onStateUpdate(await player.getCurrentState()), 1000);
 				break;
 			case 'previous':
 				await player.previousTrack();
-				setTimeout(async () => this.onStateUpdate(await player.getCurrentState()), 500);
+				window.setTimeout(async () => this.onStateUpdate(await player.getCurrentState()), 1000);
 				break;
 		}
 	}

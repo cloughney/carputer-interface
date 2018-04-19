@@ -35,7 +35,7 @@ export class SpotifyPlayer implements IAudioPlayer {
         await spotify.api.transferMyPlayback([ this.deviceId ]);
 
         if (this.eventListenerMap.stateUpdate.length > 0) {
-            this.playbackInterval = setInterval(this.updateState, spotifyStatePollIntervalMs);
+            this.playbackInterval = window.setInterval(this.updateState, spotifyStatePollIntervalMs);
         }
     }
 
@@ -60,7 +60,7 @@ export class SpotifyPlayer implements IAudioPlayer {
 
         if (eventName === 'stateUpdate') {
             if (this.eventListenerMap.stateUpdate.length === 1 && this.playbackInterval === null) {
-                this.playbackInterval = setInterval(this.updateState, spotifyStatePollIntervalMs);
+                this.playbackInterval = window.setInterval(this.updateState, spotifyStatePollIntervalMs);
             }
         }
     }

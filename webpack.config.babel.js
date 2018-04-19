@@ -31,6 +31,11 @@ const entry = env.isTesting ? undefined : {
 const plugins = [
 	new webpack.LoaderOptionsPlugin({
 		debug: env.isDevelopment
+	}),
+	new ExtractTextPlugin({
+		filename: '[name].css',
+		allChunks: true,
+		disable: !env.isProduction
 	})
 ];
 
@@ -44,10 +49,6 @@ if (env.isTesting) {
 	plugins.push.apply(plugins, [
 		new webpack.ProvidePlugin({
 			'regeneratorRuntime': 'regenerator-runtime'
-		}),
-		new ExtractTextPlugin({
-			filename: '[name].css',
-			allChunks: true
 		}),
 		new webpack.optimize.CommonsChunkPlugin({
 			name: 'libs',
