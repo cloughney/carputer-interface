@@ -5,8 +5,8 @@ import { Route, RouteComponentProps, Switch, withRouter, Redirect } from 'react-
 
 import './index.scss';
 
-import { AppState } from 'state';
-import { selectAudioSource, clearAudioSourceError } from 'state/actions';
+import { AppState, AudioState, AudioSourceState } from 'state';
+import { selectAudioSource, resetAudioSourceState } from 'state/actions';
 import { AudioSource, audioSourceService } from 'services/audio';
 import Overlay from 'components/overlay';
 import AudioPlayer from './components/audio-player';
@@ -14,18 +14,40 @@ import SourceBrowser from './components/source-browser';
 import SpotifyConnect from 'components/spotify-connect';
 
 namespace AudioSourceSelector {
-	export interface Props {
-		isSwitchingSource: boolean;
-		sourceError: string | null;
-		sourceRequiresAuthentication: boolean;
+	export interface Props extends RouteComponentProps<void> {
+		audioState: AudioState;
 		setAudioSource(key: string): void;
-		clearError(): void;
+		resetState(): void;
 	}
 }
 
-const AudioSourceSelector: React.SFC<AudioSourceSelector.Props> = ({ setAudioSource, isSwitchingSource, sourceError, clearError, sourceRequiresAuthentication }) => {
-	if (sourceRequiresAuthentication && clearError === null) {
-		return <Redirect to="/audio/connect/spotify" />;
+const AudioSourceErrorMessage: React.SFC<{ error: string, exit(): void }> = ({ error, exit }) => (
+	<div className="fail">
+		<span>Failed to switch audio source:<br />{error}</span><br />
+		<button onClick={ exit }>Okay</button>
+	</div>
+);
+
+const AudioSourceBrowser: React.SFC<AudioSourceSelector.Props> = ({ audioState, setAudioSource, resetState, match, history, location }) => {
+	if (audioState.state === AudioSourceState.Initialized) {
+		return <Redirect to="/audio/player" />
+	}
+	
+	if (audioState.state === AudioSourceState.RequiresAuthentication && location.state === undefined) {
+		return <Redirect to={{
+			pathname: `/audio/connect/${audioState.key}`,
+			state: { successRedirect: '/audio/player', failureRedirect: match.url }
+		}} />;
+	}
+
+	let overlayMessage: JSX.Element | null = null;
+	switch (audioState.state) {
+		case AudioSourceState.Switching:
+			overlayMessage = <span>Switching audio sources...</span>;
+			break;
+		case AudioSourceState.Error:
+			overlayMessage = <AudioSourceErrorMessage error={audioState.error} exit={resetState} />;
+			break;
 	}
 
 	return (
@@ -33,15 +55,8 @@ const AudioSourceSelector: React.SFC<AudioSourceSelector.Props> = ({ setAudioSou
 			{ audioSourceService.availableSources.map(x => (
 				<button key={x.key} onClick={ () => setAudioSource(x.key) }>{x.key}</button>
 			)) }
-			<Overlay isVisible={isSwitchingSource || !!sourceError}>
-				{ isSwitchingSource
-					? <span>Switching audio sources...</span>
-					: (
-						<div className="fail">
-							<span>Failed to switch audio source:<br />{sourceError}</span><br />
-							<button onClick={ clearError }>Okay</button>
-						</div>
-					)}
+			<Overlay isVisible={ !!overlayMessage }>
+				{ overlayMessage }
 			</Overlay>
 		</div>
 	)
@@ -49,12 +64,9 @@ const AudioSourceSelector: React.SFC<AudioSourceSelector.Props> = ({ setAudioSou
 
 export interface Props extends RouteComponentProps<any> {
 	isHubConnected: boolean;
-	isSwitchingSource: boolean;
-	audioSource: AudioSource | null;
-	sourceError: string | null;
-	sourceRequiresAuthentication: boolean;
+	audioState: AudioState;
 	setAudioSource(source: string): Promise<void>;
-	clearError(): void;
+	resetState(): void;
 }
 
 class AudioView extends React.Component<Props> {
@@ -66,20 +78,17 @@ class AudioView extends React.Component<Props> {
 		const { url: matchedPath } = this.props.match;
 		const {
 			isHubConnected,
-			audioSource,
+			audioState,
 			setAudioSource,
-			isSwitchingSource,
-			sourceError,
-			sourceRequiresAuthentication,
-			clearError
+			resetState
 		} = this.props;
 
 		return (
 			<div className="audio">
 				<Switch>
-					<Route exact path={matchedPath} render={ props => <AudioSourceSelector {...{ setAudioSource, isSwitchingSource, sourceError, sourceRequiresAuthentication, clearError }} /> } />
-					<Route path={`${matchedPath}/player`} render={ props => <AudioPlayer audioSource={ audioSource } { ...props } /> } />
-					<Route path={`${matchedPath}/browse`} render={ props => <SourceBrowser audioSource={ audioSource } { ...props } /> } />
+					<Route exact path={matchedPath} render={ props => <AudioSourceBrowser {...{ audioState, setAudioSource, resetState, ...props }} /> } />
+					<Route path={`${matchedPath}/player`} render={ props => <AudioPlayer audioState={ audioState } { ...props } /> } />
+					<Route path={`${matchedPath}/browse`} render={ props => <SourceBrowser audioState={ audioState } { ...props } /> } />
 					
 					{/* TODO create a 'connect' route that handles auth for audio sources */}
 					<Route path={`${matchedPath}/connect/spotify`} render={ props => <SpotifyConnect isHubConnected={ isHubConnected } { ...props } /> } />
@@ -91,15 +100,12 @@ class AudioView extends React.Component<Props> {
 
 const mapStateToProps = (state: AppState): any => ({
 	isHubConnected: state.isHubConnected,
-	isSwitchingSource: state.audio.isSwitchingSource,
-	audioSource: state.audio.selectedSource,
-	sourceError: state.audio.sourceError,
-	sourceRequiresAuthentication: state.audio.requiresAuthentication
+	audioState: state.audio
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<AppState>) => ({
 	setAudioSource: (source: string) => dispatch(selectAudioSource(source)),
-	clearError: () => dispatch(clearAudioSourceError())
+	clearError: () => dispatch(resetAudioSourceState())
 });
 
 export default connect(

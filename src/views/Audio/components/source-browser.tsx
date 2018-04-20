@@ -1,11 +1,12 @@
 import * as React from 'react';
+import { AudioState, AudioSourceState } from 'state';
 import { AudioSource, Category } from 'services/audio';
 import { Redirect } from 'react-router';
 
 import './source-browser.scss';
 
 export interface Props {
-    audioSource: AudioSource | null;
+	audioState: AudioState;
 }
 
 export interface State {
@@ -23,13 +24,13 @@ export default class SourceBrowser extends React.Component<Props, State> {
     }
 
     public async componentDidMount(): Promise<void> {
-        const { audioSource } = this.props;
-        if (audioSource === null) {
+        const { audioState } = this.props;
+        if (audioState.state !== AudioSourceState.Initialized) {
             return;
         }
 
 		try {
-			const categories = await audioSource.browser.getCategories();
+			const categories = await audioState.source.browser.getCategories();
 			this.setState({ items: categories });
 		} catch (err) {
 			if (err instanceof XMLHttpRequest && err.status === 401) {

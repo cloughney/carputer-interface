@@ -16,8 +16,11 @@ export type SELECT_AUDIO_SOURCE_FAILURE = typeof SELECT_AUDIO_SOURCE_FAILURE;
 export const SELECT_AUDIO_SOURCE_REQUIRES_AUTHENTICATION = 'SELECT_AUDIO_SOURCE_REQUIRES_AUTHENTICATION';
 export type SELECT_AUDIO_SOURCE_REQUIRES_AUTHENTICATION = typeof SELECT_AUDIO_SOURCE_REQUIRES_AUTHENTICATION;
 
-export const CLEAR_AUDIO_SOURCE_ERROR = 'CLEAR_AUDIO_SOURCE_ERROR';
-export type CLEAR_AUDIO_SOURCE_ERROR = typeof CLEAR_AUDIO_SOURCE_ERROR;
+export const SELECT_AUDIO_SOURCE_COMPLETE_AUTHENTICATION = 'SELECT_AUDIO_SOURCE_COMPLETE_AUTHENTICATION';
+export type SELECT_AUDIO_SOURCE_COMPLETE_AUTHENTICATION = typeof SELECT_AUDIO_SOURCE_COMPLETE_AUTHENTICATION;
+
+export const RESET_AUDIO_SOURCE_STATE = 'RESET_AUDIO_SOURCE_STATE';
+export type RESET_AUDIO_SOURCE_STATE = typeof RESET_AUDIO_SOURCE_STATE;
 
 export interface SelectAudioSourceBegin {
     type: SELECT_AUDIO_SOURCE;
@@ -34,37 +37,48 @@ export interface SelectAudioSourceFailure {
 }
 
 export interface SelectAudioSourceRequiresAuthentication {
-    type: SELECT_AUDIO_SOURCE_REQUIRES_AUTHENTICATION;
+	type: SELECT_AUDIO_SOURCE_REQUIRES_AUTHENTICATION;
+	key: string;
 }
 
-export interface ClearAudioSourceError {
-    type: CLEAR_AUDIO_SOURCE_ERROR;
+export interface CompleteAudioSourceAuthentication {
+	type: SELECT_AUDIO_SOURCE_COMPLETE_AUTHENTICATION;
 }
 
-export type SelectAudioSource = SelectAudioSourceBegin | SelectAudioSourceSuccess | SelectAudioSourceFailure | SelectAudioSourceRequiresAuthentication | ClearAudioSourceError;
+export interface ResetAudioSourceState {
+    type: RESET_AUDIO_SOURCE_STATE;
+}
 
-const switchAudioSource = (): SelectAudioSource => ({ type: SELECT_AUDIO_SOURCE });
-const receiveAudioSource = (source: AudioSource): SelectAudioSourceSuccess => ({ type: SELECT_AUDIO_SOURCE_SUCCESS, source });
-const failSwitchAudioSource = (error: string): SelectAudioSourceFailure => ({ type: SELECT_AUDIO_SOURCE_FAILURE, error });
-const requireAudioSourceAuthentication = (): SelectAudioSourceRequiresAuthentication => ({ type: SELECT_AUDIO_SOURCE_REQUIRES_AUTHENTICATION });
+export type SelectAudioSource = 
+	SelectAudioSourceBegin | 
+	SelectAudioSourceSuccess | 
+	SelectAudioSourceFailure | 
+	SelectAudioSourceRequiresAuthentication |
+	ResetAudioSourceState;
+
+const beginSourceSwitch = (): SelectAudioSource => ({ type: SELECT_AUDIO_SOURCE });
+const completeSourceInitialization = (source: AudioSource): SelectAudioSourceSuccess => ({ type: SELECT_AUDIO_SOURCE_SUCCESS, source });
+const failSourceInitialization = (error: string): SelectAudioSourceFailure => ({ type: SELECT_AUDIO_SOURCE_FAILURE, error });
+const requireSourceAuthentication = (key: string): SelectAudioSourceRequiresAuthentication => ({ type: SELECT_AUDIO_SOURCE_REQUIRES_AUTHENTICATION, key });
 
 export const selectAudioSource: ActionCreator<ThunkAction<Promise<void>, AppState, void>> = (key: string) => {
     return async (dispatch, getState) => {
-        dispatch(switchAudioSource());
+        dispatch(beginSourceSwitch());
     
         try {
             const audioSource = await audioSourceService.setActiveSource(key);
-            dispatch(receiveAudioSource(audioSource));
+            dispatch(completeSourceInitialization(audioSource));
         } catch (err) {
-			if (err instanceof XMLHttpRequest && err.status === 401) {
-				dispatch(requireAudioSourceAuthentication());
+			if (err.type === 'authentication') {
+				dispatch(requireSourceAuthentication(key));
 				return;
 			}
 			
             console.error(err);
-            dispatch(failSwitchAudioSource(`Cannot select the audio source '${key}'.`));
+            dispatch(failSourceInitialization('Failed to select the audio source.'));
         }
     }
 }
 
-export const clearAudioSourceError: ActionCreator<ClearAudioSourceError> = () => ({ type: CLEAR_AUDIO_SOURCE_ERROR });
+export const completeAudioSourceAuthentication: ActionCreator<CompleteAudioSourceAuthentication> = () => ({ type: SELECT_AUDIO_SOURCE_COMPLETE_AUTHENTICATION });
+export const resetAudioSourceState: ActionCreator<ResetAudioSourceState> = () => ({ type: RESET_AUDIO_SOURCE_STATE });

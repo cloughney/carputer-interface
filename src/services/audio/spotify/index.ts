@@ -15,8 +15,8 @@ const initialize = async (): Promise<void> => {
             await player.initialize();
             isInitialized = true;
         } catch (err) {
-            if (err.status === 401) {
-                throw { type: 'authentication', route: '/spotify/connect' };
+            if (err instanceof XMLHttpRequest && err.status === 401) {
+                throw { type: 'authentication' };
             }
 
             throw err;

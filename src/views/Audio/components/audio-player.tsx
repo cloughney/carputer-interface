@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { RouteComponentProps, Redirect, withRouter } from 'react-router';
 
+import { AudioState, AudioSourceState } from 'state';
 import { AudioSource, AudioPlayerState, Track, defaultPlayerState } from 'services/audio';
 import Overlay from 'components/overlay';
 
@@ -64,7 +65,7 @@ const PlaybackControls: React.SFC<ControlProps> = ({ isPlaying, controlPlayback 
 }
 
 export interface Props {
-	audioSource: AudioSource | null;
+	audioState: AudioState;
 }
 
 export interface State {
@@ -91,16 +92,17 @@ export default class AudioPlayer extends React.Component<Props, State> {
 	}
 
 	public async componentDidMount(): Promise<void> {
-		const { audioSource } = this.props;
-		if (audioSource === null) {
+		const { audioState } = this.props;
+		if (audioState.state !== AudioSourceState.Initialized) {
 			return;
 		}
 		
-		const playerState = await audioSource.player.getCurrentState();
+		const { source } = audioState;
+		const playerState = await source.player.getCurrentState();
 		this.onStateUpdate(playerState);
 
-		audioSource.player.addEventListener('stateUpdate', this.onStateUpdate);
-		this.playbackInterval = window.setInterval(() => this.onPlaybackTick(audioSource), 1000);
+		source.player.addEventListener('stateUpdate', this.onStateUpdate);
+		this.playbackInterval = window.setInterval(() => this.onPlaybackTick(source), 1000);
 	}
 
 	public componentWillUnmount(): void {
@@ -108,14 +110,15 @@ export default class AudioPlayer extends React.Component<Props, State> {
 			clearInterval(this.playbackInterval);
 		}
 
-		if (this.props.audioSource) {
-			this.props.audioSource.player.removeEventListener('stateUpdate', this.onStateUpdate);
+		const { audioState } = this.props;
+		if (audioState.state === AudioSourceState.Initialized) {
+			audioState.source.player.removeEventListener('stateUpdate', this.onStateUpdate);
 		}
 	}
 
 	public render() {
-		const { audioSource } = this.props;
-		if (audioSource === null) {
+		const { audioState } = this.props;
+		if (audioState.state !== AudioSourceState.Initialized) {
 			return <Redirect to={'/audio'} />;
 		}
 
@@ -127,7 +130,7 @@ export default class AudioPlayer extends React.Component<Props, State> {
 				<div className="cover-art" style={{ backgroundImage }} />
 				<div className="player">
 					<PlaybackDetails currentTrack={currentTrack} trackPosition={trackPosition} trackDuration={trackDuration} />
-					<PlaybackControls isPlaying={isPlaying} controlPlayback={ command => this.onPlayerControlClick(audioSource, command) } />
+					<PlaybackControls isPlaying={isPlaying} controlPlayback={ command => this.onPlayerControlClick(audioState.source, command) } />
 				</div>
 			</div>
 		);
