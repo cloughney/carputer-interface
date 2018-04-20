@@ -2,6 +2,9 @@ import { combineReducers } from 'redux';
 import { AppState } from 'state';
 import * as Actions from 'state/actions';
 
+import { audioReducer as audio } from './audio/reducers';
+import { configurationReducer as configuration } from './configuration/reducers';
+
 export const appReducer = combineReducers<AppState>({
     isHubConnected: (state: AppState['isHubConnected'] = false, action: Actions.HubConnection) => {
         switch (action.type) {
@@ -11,34 +14,6 @@ export const appReducer = combineReducers<AppState>({
         }
     },
 
-    audio: (state: AppState['audio'] = {
-        isSwitchingSource: false,
-        selectedSource: null,
-        sourceError: null
-    }, action: Actions.SelectAudioSource) => {
-
-        switch (action.type) {
-            case Actions.SELECT_AUDIO_SOURCE:
-                return { ...state, isSwitchingSource: true };
-            
-            case Actions.SELECT_AUDIO_SOURCE_SUCCESS:
-                return {
-                    ...state,
-                    isSwitchingSource: false,
-                    selectedSource: action.source
-                };
-
-            case Actions.SELECT_AUDIO_SOURCE_FAILURE:
-                return {
-                    ...state,
-                    isSwitchingSource: false,
-                    selectedSource: null,
-                    sourceError: action.error
-                };
-            case Actions.CLEAR_AUDIO_SOURCE_ERROR:
-                return { ...state, sourceError: null };
-            
-            default: return state;
-        }
-    }
+	audio,
+	configuration
 });

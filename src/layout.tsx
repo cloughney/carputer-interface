@@ -11,7 +11,6 @@ import HomeView from './views/Home';
 import AudioView from './views/Audio';
 import NavigationView from './views/Navigation';
 import SettingsView from './views/Settings';
-import SpotifyConnect from 'components/spotify-connect';
 
 export namespace Layout {
 	export type Props = {
@@ -30,7 +29,6 @@ const Layout: React.SFC<Layout.Props> = ({ isHubConnected }) => {
 						<Route path="/audio" component={ AudioView } />
 						<Route path="/navigation" component={ NavigationView } />
 						<Route path="/settings" component={ SettingsView } />
-						<Route path="/spotify/connect" render={ props => <SpotifyConnect isHubConnected={ isHubConnected } { ...props } /> } />
 					</Switch>
 				</div>
 			</div>

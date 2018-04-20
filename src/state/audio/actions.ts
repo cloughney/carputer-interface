@@ -13,6 +13,9 @@ export type SELECT_AUDIO_SOURCE_SUCCESS = typeof SELECT_AUDIO_SOURCE_SUCCESS;
 export const SELECT_AUDIO_SOURCE_FAILURE = 'SELECT_AUDIO_SOURCE_FAILURE';
 export type SELECT_AUDIO_SOURCE_FAILURE = typeof SELECT_AUDIO_SOURCE_FAILURE;
 
+export const SELECT_AUDIO_SOURCE_REQUIRES_AUTHENTICATION = 'SELECT_AUDIO_SOURCE_REQUIRES_AUTHENTICATION';
+export type SELECT_AUDIO_SOURCE_REQUIRES_AUTHENTICATION = typeof SELECT_AUDIO_SOURCE_REQUIRES_AUTHENTICATION;
+
 export const CLEAR_AUDIO_SOURCE_ERROR = 'CLEAR_AUDIO_SOURCE_ERROR';
 export type CLEAR_AUDIO_SOURCE_ERROR = typeof CLEAR_AUDIO_SOURCE_ERROR;
 
@@ -30,15 +33,20 @@ export interface SelectAudioSourceFailure {
     error: string;
 }
 
+export interface SelectAudioSourceRequiresAuthentication {
+    type: SELECT_AUDIO_SOURCE_REQUIRES_AUTHENTICATION;
+}
+
 export interface ClearAudioSourceError {
     type: CLEAR_AUDIO_SOURCE_ERROR;
 }
 
-export type SelectAudioSource = SelectAudioSourceBegin | SelectAudioSourceSuccess | SelectAudioSourceFailure | ClearAudioSourceError;
+export type SelectAudioSource = SelectAudioSourceBegin | SelectAudioSourceSuccess | SelectAudioSourceFailure | SelectAudioSourceRequiresAuthentication | ClearAudioSourceError;
 
 const switchAudioSource = (): SelectAudioSource => ({ type: SELECT_AUDIO_SOURCE });
 const receiveAudioSource = (source: AudioSource): SelectAudioSourceSuccess => ({ type: SELECT_AUDIO_SOURCE_SUCCESS, source });
 const failSwitchAudioSource = (error: string): SelectAudioSourceFailure => ({ type: SELECT_AUDIO_SOURCE_FAILURE, error });
+const requireAudioSourceAuthentication = (): SelectAudioSourceRequiresAuthentication => ({ type: SELECT_AUDIO_SOURCE_REQUIRES_AUTHENTICATION });
 
 export const selectAudioSource: ActionCreator<ThunkAction<Promise<void>, AppState, void>> = (key: string) => {
     return async (dispatch, getState) => {
@@ -48,6 +56,11 @@ export const selectAudioSource: ActionCreator<ThunkAction<Promise<void>, AppStat
             const audioSource = await audioSourceService.setActiveSource(key);
             dispatch(receiveAudioSource(audioSource));
         } catch (err) {
+			if (err instanceof XMLHttpRequest && err.status === 401) {
+				dispatch(requireAudioSourceAuthentication());
+				return;
+			}
+			
             console.error(err);
             dispatch(failSwitchAudioSource(`Cannot select the audio source '${key}'.`));
         }
