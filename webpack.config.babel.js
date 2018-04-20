@@ -3,13 +3,13 @@
 import webpack from 'webpack';
 import * as path from 'path';
 
-import CopyWebpackPlugin from 'copy-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 
 import * as project from './package.json';
 
 import env from './config/webpack.env.config';
-import { getPlugins as getHtmlPlugins } from './config/webpack.html.config';
 
 const paths = {
 	root: path.resolve(),
@@ -53,14 +53,18 @@ if (env.isTesting) {
 		new webpack.optimize.CommonsChunkPlugin({
 			name: 'libs',
 			minChunks: Infinity
+		}),
+		new HtmlWebpackPlugin({
+			title: 'Carputer',
+			template: 'html/index.hbs',
+			chunksSortMode: 'dependency',
+			pageOptions: { includeDevServer: env.isDevelopment }
 		})
 		// new CopyWebpackPlugin([
 		// 	//{ from: 'favicon.ico', to: 'favicon.ico' },
 		// 	{ from: '**/images/**/*', ignore: ['node_modules/**/*'] }
 		// ])
 	]);
-
-	plugins.push.apply(plugins, getHtmlPlugins(env));
 
 	if (env.isProduction) {
 		plugins.push.apply(plugins, [
