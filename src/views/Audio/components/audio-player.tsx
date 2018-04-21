@@ -9,18 +9,22 @@ import './audio-player.scss';
 
 type PlaybackCommandType = 'play' | 'pause' | 'next' | 'previous';
 
-interface PlaybackProps {
-	currentTrack: Track | null;
-	trackPosition: number | null;
-	trackDuration: number | null;
+namespace PlaybackDetails {
+	export interface Props {
+		currentTrack: Track | null;
+		trackPosition: number | null;
+		trackDuration: number | null;
+	}
 }
 
-interface ControlProps {
-	isPlaying: boolean;
-	controlPlayback(command: PlaybackCommandType): void;
+namespace PlaybackControls {
+	export interface Props {
+		isPlaying: boolean;
+		controlPlayback(command: PlaybackCommandType): void;
+	}
 }
 
-const PlaybackDetails: React.SFC<PlaybackProps> = ({ currentTrack, trackPosition, trackDuration }) => {
+const PlaybackDetails: React.SFC<PlaybackDetails.Props> = ({ currentTrack, trackPosition, trackDuration }) => {
 	function getPrettyTime(ms: number | null): string {
 		if (ms === null) {
 			return '0:00';
@@ -50,7 +54,7 @@ const PlaybackDetails: React.SFC<PlaybackProps> = ({ currentTrack, trackPosition
 	)
 }
 
-const PlaybackControls: React.SFC<ControlProps> = ({ isPlaying, controlPlayback }) => {
+const PlaybackControls: React.SFC<PlaybackControls.Props> = ({ isPlaying, controlPlayback }) => {
 	const togglePlayButton = isPlaying
 		? <button className="pause" onClick={ () => controlPlayback('pause') } />
 		: <button className="play" onClick={ () => controlPlayback('play') } />;
@@ -64,8 +68,10 @@ const PlaybackControls: React.SFC<ControlProps> = ({ isPlaying, controlPlayback 
 	)
 }
 
-export interface Props {
+export interface Props extends RouteComponentProps<void> {
 	audioState: AudioState;
+	browserPath: string;
+	sourcesPath: string;
 }
 
 export interface State {
@@ -117,9 +123,9 @@ export default class AudioPlayer extends React.Component<Props, State> {
 	}
 
 	public render() {
-		const { audioState } = this.props;
+		const { audioState, sourcesPath } = this.props;
 		if (audioState.state !== AudioSourceState.Initialized) {
-			return <Redirect to={'/audio'} />;
+			return <Redirect to={sourcesPath} />;
 		}
 
 		const { isPlaying, currentTrack, trackPosition, trackDuration } = this.state;

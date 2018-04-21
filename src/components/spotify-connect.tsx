@@ -76,13 +76,13 @@ export default class SpotifyConnect extends React.Component<SpotifyConnect.Props
 	public render() {
 		switch (this.state.authState) {
 			case AuthState.Authenticated:
-				return <Redirect to={{ pathname: '/audio', state: { isSuccessful: true } }} />;
+				return <Redirect to={{ pathname: '/audio/sources', state: { authSuccess: true } }} />;
 			case AuthState.AwaitingHubConnection:
 				return <span>Awaiting connection with hub...</span>;
 			case AuthState.AwaitingToken:
 				return <span>Awaiting token from hub...</span>;
 			default:
-				return <span>Encountered an error while authenticating with Spotify.</span>;
+				return <Redirect to={{ pathname: '/audio/sources', state: { authSuccess: false } }} />;
 		}
 	}
 
