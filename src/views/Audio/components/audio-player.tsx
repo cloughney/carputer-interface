@@ -52,6 +52,7 @@ const PlaybackDetails: React.SFC<PlaybackDetails.Props> = ({ currentTrack, track
 	const trackArtists = currentTrack ? currentTrack.artists.map(x => x.name).join(', ') : '--';
 	const albumTitle = currentTrack ? currentTrack.album.name : '--';
 	const albumImageSrc = currentTrack ? currentTrack.album.image : '';
+	const progressPercent = ((trackPosition || 0) / (trackDuration || 100)) * 100;
 
 	return (
 		<div className="details">
@@ -60,7 +61,10 @@ const PlaybackDetails: React.SFC<PlaybackDetails.Props> = ({ currentTrack, track
 				<div className="title">{ trackTitle }</div>
 				<div className="artist">{ trackArtists }</div>
 				<div className="album">{ albumTitle }</div>
-				<div className="time">{ getPrettyTime(trackPosition) }/{ getPrettyTime(trackDuration) }</div>
+				<div className="time">
+					<span>{ getPrettyTime(trackPosition) }/{ getPrettyTime(trackDuration) }</span>
+					<span className="progress" style={{ width: `${progressPercent}%` }}></span>
+				</div>
 			</div>
 		</div>
 	)

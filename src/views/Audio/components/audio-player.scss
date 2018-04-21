@@ -50,7 +50,17 @@
                 background: $overlay-background;
 				font-size: 1.75em;
 
-                .title { font-size: 1.25em; }
+				.title { font-size: 1.25em; }
+				.time {
+					position: relative;
+					.progress {
+						position: absolute;
+						left: 0;
+						height: 100%;
+						
+						background: rgba(0, 255, 0, 0.3);
+					}
+				}
             }
         }
 
