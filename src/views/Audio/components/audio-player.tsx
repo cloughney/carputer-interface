@@ -90,8 +90,7 @@ class Menu extends React.Component<Menu.Props, Menu.State> {
 		const { isExpanded } = this.state;
 		return (
 			<div className={`menu ${ isExpanded ? 'out': 'in' }`}>
-				<button className="sources" onClick={() => { }} />
-				<button className="browser" onClick={() => { }} />
+				{ this.props.children }
 				<button className="hint" onClick={() => this.setState(x => ({ isExpanded: !x.isExpanded }))} />
 			</div>
 		);
@@ -153,7 +152,7 @@ export default class AudioPlayer extends React.Component<Props, State> {
 	}
 
 	public render() {
-		const { audioState, sourcesPath } = this.props;
+		const { audioState, browserPath, history, sourcesPath } = this.props;
 		if (audioState.state !== AudioSourceState.Initialized) {
 			return <Redirect to={sourcesPath} />;
 		}
@@ -168,7 +167,10 @@ export default class AudioPlayer extends React.Component<Props, State> {
 					<PlaybackDetails currentTrack={currentTrack} trackPosition={trackPosition} trackDuration={trackDuration} />
 					<PlaybackControls isPlaying={isPlaying} controlPlayback={ command => this.onPlayerControlClick(audioState.source, command) } />
 				</div>
-				<Menu isExpanded={false} />
+				<Menu isExpanded={false}>
+					<button className="sources" onClick={() => history.push(sourcesPath)} />
+					<button className="browser" onClick={() => history.push(browserPath)} />
+				</Menu>
 			</div>
 		);
 	}

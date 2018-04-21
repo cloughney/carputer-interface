@@ -4,6 +4,8 @@ import { AudioState, AudioSourceState } from 'state';
 import { audioSourceService } from 'services/audio';
 import Overlay from 'components/overlay';
 
+import './source-selector.scss';
+
 const ErrorDialog: React.SFC<{ error: string, exit(): void }> = ({ error, exit }) => (
 	<div className="fail">
 		<span>Failed to switch audio source:<br />{error}</span><br />
@@ -12,7 +14,7 @@ const ErrorDialog: React.SFC<{ error: string, exit(): void }> = ({ error, exit }
 )
 
 const SourceItem: React.SFC<{ sourceKey: string, select(): void }> = ({ sourceKey, select }) => (
-	<button onClick={ select }>{sourceKey}</button>
+	<button className="source" onClick={ select }>{sourceKey}</button>
 )
 
 export interface Props extends RouteComponentProps<void> {
