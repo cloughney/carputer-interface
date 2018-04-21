@@ -9,7 +9,7 @@ import { audioSourceService } from 'services/audio';
 import AudioPlayer from './components/audio-player';
 import SourceSelector from './components/source-selector';
 import SourceBrowser from './components/source-browser';
-import SpotifyConnect from 'components/spotify-connect';
+import SpotifyConnect from './components/spotify-connect';
 
 import './index.scss';
 
@@ -46,7 +46,7 @@ class AudioView extends React.Component<Props> {
 						path={sourcesPath}
 						render={ props => <SourceSelector {...{audioState, playerPath, setAudioSource, resetState, ...props }} /> } />
 					
-					{/* TODO create a 'connect' route that handles auth for audio sources */}
+					{/* TODO create a 'connect' route that handles auth for audio sources? */}
 					<Route path={`${matchedPath}/connect/spotify`} render={ props => <SpotifyConnect isHubConnected={ isHubConnected } { ...props } /> } />
 				</Switch>
 			</div>

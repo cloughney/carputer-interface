@@ -24,6 +24,16 @@ namespace PlaybackControls {
 	}
 }
 
+namespace Menu {
+	export interface Props {
+		isExpanded: boolean;
+	}
+
+	export interface State {
+		isExpanded: boolean;
+	}
+}
+
 const PlaybackDetails: React.SFC<PlaybackDetails.Props> = ({ currentTrack, trackPosition, trackDuration }) => {
 	function getPrettyTime(ms: number | null): string {
 		if (ms === null) {
@@ -37,17 +47,19 @@ const PlaybackDetails: React.SFC<PlaybackDetails.Props> = ({ currentTrack, track
 		return `${minutes}:${seconds > 9 ? seconds : '0' + seconds}`;
 	}
 
-	if (currentTrack === null) {
-		return null;
-	}
+
+	const trackTitle = currentTrack ? currentTrack.name : '--';
+	const trackArtists = currentTrack ? currentTrack.artists.map(x => x.name).join(', ') : '--';
+	const albumTitle = currentTrack ? currentTrack.album.name : '--';
+	const albumImageSrc = currentTrack ? currentTrack.album.image : '';
 
 	return (
 		<div className="details">
-			<div className="album-art"><img src={currentTrack.album.image} /></div>
+			<div className="album-art"><img src={albumImageSrc} /></div>
 			<div className="playback">
-				<div className="title">{ currentTrack.name }</div>
-				<div className="artist">{ currentTrack.artists.map(x => x.name).join(', ') }</div>
-				<div className="album">{ currentTrack.album.name }</div>
+				<div className="title">{ trackTitle }</div>
+				<div className="artist">{ trackArtists }</div>
+				<div className="album">{ albumTitle }</div>
 				<div className="time">{ getPrettyTime(trackPosition) }/{ getPrettyTime(trackDuration) }</div>
 			</div>
 		</div>
@@ -66,6 +78,24 @@ const PlaybackControls: React.SFC<PlaybackControls.Props> = ({ isPlaying, contro
 			<button className="next" onClick={ () => controlPlayback('next') } />
 		</div>
 	)
+}
+
+class Menu extends React.Component<Menu.Props, Menu.State> {
+	public constructor(props: Menu.Props) {
+		super(props);
+		this.state = { isExpanded: props.isExpanded };
+	}
+
+	public render() {
+		const { isExpanded } = this.state;
+		return (
+			<div className={`menu ${ isExpanded ? 'out': 'in' }`}>
+				<button className="sources" onClick={() => { }} />
+				<button className="browser" onClick={() => { }} />
+				<button className="hint" onClick={() => this.setState(x => ({ isExpanded: !x.isExpanded }))} />
+			</div>
+		);
+	}
 }
 
 export interface Props extends RouteComponentProps<void> {
@@ -138,6 +168,7 @@ export default class AudioPlayer extends React.Component<Props, State> {
 					<PlaybackDetails currentTrack={currentTrack} trackPosition={trackPosition} trackDuration={trackDuration} />
 					<PlaybackControls isPlaying={isPlaying} controlPlayback={ command => this.onPlayerControlClick(audioState.source, command) } />
 				</div>
+				<Menu isExpanded={false} />
 			</div>
 		);
 	}
