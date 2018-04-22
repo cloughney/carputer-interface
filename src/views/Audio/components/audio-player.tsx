@@ -63,7 +63,7 @@ const PlaybackDetails: React.SFC<PlaybackDetails.Props> = ({ currentTrack, track
 				<div className="album">{ albumTitle }</div>
 				<div className="time">
 					<span>{ getPrettyTime(trackPosition) }/{ getPrettyTime(trackDuration) }</span>
-					<span className="progress" style={{ width: `${progressPercent}%` }}></span>
+					<span className="track-progress" style={{ width: `${progressPercent}%` }}></span>
 				</div>
 			</div>
 		</div>

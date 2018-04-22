@@ -53,12 +53,13 @@
 				.title { font-size: 1.25em; }
 				.time {
 					position: relative;
-					.progress {
+					
+					.track-progress {
 						position: absolute;
 						left: 0;
-						height: 100%;
-						
-						background: rgba(0, 255, 0, 0.3);
+						bottom: 0;
+						border-bottom: 3px solid rgba(0, 255, 0, 0.3);
+						transition: width 1s linear;
 					}
 				}
             }
