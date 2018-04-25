@@ -64,7 +64,7 @@ export default class SourceSelector extends React.Component<Props, State> {
 	}
 
 	public componentDidMount(): void {
-		const { audioState, setAudioSource } = this.props;
+		const { audioState } = this.props;
 		if (audioState.state === AudioSourceState.RequiresAuthentication && this.authResponse) {
 			this.selectAudioSource(audioState.key);
 		}

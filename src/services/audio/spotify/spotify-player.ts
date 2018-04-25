@@ -1,5 +1,5 @@
 import { client as hub } from 'services/hub';
-import { IAudioPlayer, AudioPlayerState, AudioPlayerEventListeners as EventListeners, AudioPlayerEventListenerMap, Track, defaultPlayerState } from '..';
+import { IAudioPlayer, AudioPlayerState, AudioPlayerEventListeners as EventListeners, AudioPlayerEventListenerMap, RepeatState, Track, defaultPlayerState } from '..';
 import spotify from '.';
 
 const spotifyStatePollIntervalMs = 5000;
@@ -85,41 +85,49 @@ export class SpotifyPlayer implements IAudioPlayer {
     }
 
     public async setTracks(tracks: Track[]): Promise<void> {
-        if (this.deviceId !== null) {
+        if (this.deviceId) {
             //await api.tracks
         }
     }
 
     public async play(): Promise<void> {
-        if (this.deviceId !== null) {
+        if (this.deviceId) {
             await spotify.api.play({ device_id: this.deviceId });
         }
     }
 
     public async pause(): Promise<void> {
-        if (this.deviceId !== null) {
+        if (this.deviceId) {
             await spotify.api.pause({ device_id: this.deviceId });
         }
     }
 
     public async nextTrack(): Promise<void> {
-        if (this.deviceId !== null) {
+        if (this.deviceId) {
             await spotify.api.skipToNext({ device_id: this.deviceId });
         }
     }
 
     public async previousTrack(): Promise<void> {
-        if (this.deviceId !== null) {
+        if (this.deviceId) {
             await spotify.api.skipToPrevious({ device_id: this.deviceId });
         }
-    }
+	}
+	
+	public async seek(position: number): Promise<void> {
+		if (this.deviceId) {
+			await spotify.api.seek(position, { device_id: this.deviceId });
+		}
+	}
 
     private updateState = async (notify: boolean = true): Promise<void> => {
         const spotifyState = await spotify.api.getMyCurrentPlaybackState();
         
         const playerState = this.playerState = {
             playback: {
-                isPlaying: spotifyState.is_playing,
+				isPlaying: spotifyState.is_playing,
+				shuffleState: spotifyState.shuffle_state,
+				repeatState: spotifyState.repeat_state as RepeatState,
                 trackPosition: spotifyState.progress_ms || 0
             },
             currentTrack: spotifyState.item === null ? null : {

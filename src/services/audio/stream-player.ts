@@ -74,7 +74,8 @@ export class StreamPlayer implements IAudioPlayer {
     }
 
     public async nextTrack(): Promise<void> { }
-    public async previousTrack(): Promise<void> { }
+	public async previousTrack(): Promise<void> { }
+	public async seek(position: number): Promise<void> { }
 
     private async setActiveTrack(track: Track | undefined): Promise<void> {
         if (this.player === null) {
