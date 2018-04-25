@@ -78,14 +78,12 @@ export interface AudioSource {
     player: IAudioPlayer;
 }
 
-export const defaultPlayerState = {
+export const defaultPlayerState: AudioPlayerState = {
     playback: {
 		isPlaying: false,
 		shuffleState: false,
 		repeatState: RepeatState.Off,
         trackPosition: 0
     },
-    currentTrack: null,
-    previousTracks: [],
-    nextTracks: []
+    currentTrack: null
 };

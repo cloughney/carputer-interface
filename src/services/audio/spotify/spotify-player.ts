@@ -1,5 +1,5 @@
 import { client as hub } from 'services/hub';
-import { IAudioPlayer, AudioPlayerState, AudioPlayerEventListeners as EventListeners, AudioPlayerEventListenerMap, RepeatState, Track, defaultPlayerState } from '..';
+import { IAudioPlayer, AudioPlayerState, AudioPlayerEventListeners as EventListeners, AudioPlayerEventListenerMap, RepeatState, Track } from '..';
 import spotify from '.';
 
 const spotifyStatePollIntervalMs = 5000;

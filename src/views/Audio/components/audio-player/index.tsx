@@ -2,7 +2,7 @@ import * as React from 'react';
 import { RouteComponentProps, Redirect, withRouter } from 'react-router';
 
 import { AudioState, AudioSourceState } from 'state';
-import { AudioSource, AudioPlayerState, RepeatState, Track, defaultPlayerState } from 'services/audio';
+import { AudioSource, AudioPlayerState, RepeatState, Track } from 'services/audio';
 import PlaybackControls from './controls';
 import PlaybackDetails from './details';
 import Menu from './menu';
