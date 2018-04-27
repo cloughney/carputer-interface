@@ -2,12 +2,20 @@ import { Reducer } from 'redux';
 import { AudioState, AudioSourceState } from '..';
 import * as Actions from './actions';
 
-export const audioReducer: Reducer<AudioState> = (state = {
+const storedStateKey = 'carputer.state.audio.stored_state';
+const defaultState: AudioState = {
 	state: AudioSourceState.Uninitialized
-}, action: Actions.SelectAudioSource) => {
+};
+
+export const audioReducer: Reducer<AudioState> = (state, action: Actions.SelectAudioSource) => {
+	if (state === undefined) {
+		const storedState = window.sessionStorage.getItem(storedStateKey);
+		state = storedState ? JSON.parse(storedState) : defaultState;
+	} else {
+		window.sessionStorage.removeItem(storedStateKey);
+	}
 
 	switch (action.type) {
-
 		case Actions.SELECT_AUDIO_SOURCE:
 			return { state: AudioSourceState.Switching };
 		
@@ -24,14 +32,19 @@ export const audioReducer: Reducer<AudioState> = (state = {
 			};
 
 		case Actions.SELECT_AUDIO_SOURCE_REQUIRES_AUTHENTICATION:
-			return {
+			state = {
 				state: AudioSourceState.RequiresAuthentication,
 				key: action.key
 			};
 
+			// Retain the state when the audio source requires authentication because this may require a page redirect.
+			window.sessionStorage.setItem(storedStateKey, JSON.stringify(state));
+			return state;
+
 		case Actions.RESET_AUDIO_SOURCE_STATE:
 			return { state: AudioSourceState.Uninitialized };
 		
-		default: return state;
+		default:
+			return state;
 	}
 }
