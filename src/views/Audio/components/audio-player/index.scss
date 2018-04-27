@@ -1,0 +1,42 @@
+@import '../../../../styles/bootstrap.scss';
+@import '../../../../styles/font-awesome.scss';
+
+$overlay-background: rgba(255, 255, 255, 0.3);
+
+@import './controls.scss';
+@import './details.scss';
+@import './menu.scss';
+
+.audio-player {
+	position: relative;
+	height: 100%;
+	
+	button {
+		background: none;
+		border: none;
+		outline: none;
+        color: #000;
+		text-shadow: 1px 1px 3px #666;
+	}
+
+    .cover-art {
+        display: block;
+        position: fixed;
+        left: 0;
+        right: 0;
+        z-index: -10;
+
+        width: 110%;
+        height: 100%;
+        margin: 0 -5%;
+        
+        content: '';
+        background-size: cover;
+        background-position-y: 50%;
+        filter: blur(15px);
+    }
+
+    .player {
+        text-align: center;
+    }
+}

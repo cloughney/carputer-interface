@@ -1,0 +1,12 @@
+@import '../../../styles/bootstrap.scss';
+@import '../../../styles/font-awesome.scss';
+
+.audio > .sources {
+	button.source {
+		@extend .col-md-4;
+		height: 150px;
+		background: #eee;
+		border: none;
+		outline: none;
+	}
+}

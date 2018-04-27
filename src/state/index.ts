@@ -1,13 +1,13 @@
-import { AudioSource } from 'services/audio';
+import { AudioState } from './audio/state';
 
-export type AudioState = Readonly<{
-	isSwitchingSource: boolean;
-	selectedSource: AudioSource | null;
-	sourceError: string | null;
+export type UserConfiguration = Readonly<{
+
 }>;
 
 export type AppState = Readonly<{
 	isHubConnected: boolean;
 	audio: AudioState;
+	configuration: UserConfiguration;
 }>;
 
+export * from './audio/state';

@@ -16,3 +16,5 @@ export type HubConnection = HubConnected | HubDisconnected;
 
 export const hubConnected = (): HubConnected => ({ type: HUB_CONNECTED });
 export const hubDisconnected = (): HubDisconnected => ({ type: HUB_DISCONNECTED });
+
+export * from './audio/actions';

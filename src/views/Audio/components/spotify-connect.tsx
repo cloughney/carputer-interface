@@ -76,13 +76,13 @@ export default class SpotifyConnect extends React.Component<SpotifyConnect.Props
 	public render() {
 		switch (this.state.authState) {
 			case AuthState.Authenticated:
-				return <Redirect to="/audio" />;
+				return <Redirect to={{ pathname: '/audio/sources', state: { authSuccess: true } }} />;
 			case AuthState.AwaitingHubConnection:
 				return <span>Awaiting connection with hub...</span>;
 			case AuthState.AwaitingToken:
 				return <span>Awaiting token from hub...</span>;
 			default:
-				return <span>Encountered an error while authenticating with Spotify.</span>;
+				return <Redirect to={{ pathname: '/audio/sources', state: { authSuccess: false } }} />;
 		}
 	}
 
@@ -104,7 +104,7 @@ export default class SpotifyConnect extends React.Component<SpotifyConnect.Props
 
 	private async getAccessToken(): Promise<void> {
 		// Try to refresh an existing token.
-		const refreshResponse = await client.request<RefreshTokenResponse>('module.spotify.authentication', 'spotify.refresh_access_token');
+		const refreshResponse = await client.request<RefreshTokenResponse>('module.spotify.authentication', 'refresh_access_token');
 		if (refreshResponse.accessToken) {
 			this.setAccessToken(refreshResponse.accessToken);
 			this.setState({ authState: AuthState.Authenticated });

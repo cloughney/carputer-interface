@@ -22,8 +22,16 @@ export interface Category {
     image: string;
 }
 
+export enum RepeatState {
+	Off = 'off',
+	Track = 'track',
+	Context = 'context'
+}
+
 export interface PlaybackState {
-    isPlaying: boolean;
+	isPlaying: boolean;
+	shuffleState: boolean;
+	repeatState: RepeatState;
     trackPosition: number;
 }
 
@@ -49,7 +57,8 @@ export interface IAudioPlayer {
     play(): Promise<void>;
     pause(): Promise<void>;
     nextTrack(): Promise<void>;
-    previousTrack(): Promise<void>;
+	previousTrack(): Promise<void>;
+	seek(position: number): Promise<void>;
 }
 
 export interface ILibraryBrowser {
@@ -69,12 +78,12 @@ export interface AudioSource {
     player: IAudioPlayer;
 }
 
-export const defaultPlayerState = {
+export const defaultPlayerState: AudioPlayerState = {
     playback: {
-        isPlaying: false,
+		isPlaying: false,
+		shuffleState: false,
+		repeatState: RepeatState.Off,
         trackPosition: 0
     },
-    currentTrack: null,
-    previousTracks: [],
-    nextTracks: []
+    currentTrack: null
 };

@@ -150,6 +150,8 @@ module.exports = {
 		compress: true,
 		noInfo: true,
 		inline: true,
-		historyApiFallback: true
+		historyApiFallback: true,
+		https: true,
+		host: '0.0.0.0'
 	}
 };

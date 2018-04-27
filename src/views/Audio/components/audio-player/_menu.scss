@@ -1,0 +1,59 @@
+.audio-player .menu {
+	display: flex;
+	position: absolute;
+	top: 175px;
+	padding: 15px;
+	background: $overlay-background;
+
+	transition: margin 500ms;
+
+	button {
+		@mixin menu-item {
+			@extend .fa, .fa-fw;
+			margin: 0 45px;
+			font-size: 3em;
+		}
+
+		&.sources { @include menu-item; @extend .fa-sign-in; }
+		&.browser { @include menu-item; @extend .fa-bars; }	
+		&.shuffle {
+			@include menu-item; @extend .fa-random;
+			&.on { color: green; }
+		}
+		&.repeat {
+			@include menu-item; @extend .fa-repeat;
+			&.on { color: green; }
+		}
+	}
+
+	@mixin menu-hint {
+		@extend .fa, .fa-fw;
+		margin: 0 15px;
+	}
+
+	&.left {
+		left: 0;
+
+		&.in {
+			margin-left: -290px;
+			button.hint { @include menu-hint; @extend .fa-chevron-right; }
+		}
+
+		&.out {
+			button.hint { @include menu-hint; @extend .fa-chevron-left; }
+		}
+	}
+
+	&.right {
+		right: 0;
+
+		&.in {
+			margin-right: -290px;
+			button.hint { @include menu-hint; @extend .fa-chevron-left; }
+		}
+
+		&.out {
+			button.hint { @include menu-hint; @extend .fa-chevron-right; }
+		}
+	}
+}

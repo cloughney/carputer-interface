@@ -1,0 +1,37 @@
+.audio-player .player .controls {
+	background: $overlay-background;
+	padding: 0 0 16px 0;
+
+	button {
+		margin: 0 65px;
+		
+		@mixin control {
+			@extend .fa, .fa-fw;
+			font-size: 4em;
+		}
+		
+		&.play { @include control; @extend .fa-play; }
+		&.pause { @include control; @extend .fa-pause; }
+		&.next { @include control; @extend .fa-step-forward; }
+		&.previous { @include control; @extend .fa-step-backward; }
+	}
+
+	.time {
+		position: relative;
+		margin: 0 0 15px;
+		font-size: 1.75em;
+		text-shadow: 1px 1px 1px #888;
+		border-top: 1px solid rgba(255, 255, 255, 0.2);
+		border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+		
+		.track-progress {
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			z-index: -1;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.5);
+			transition: width 1s linear;
+		}
+	}
+}

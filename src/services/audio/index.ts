@@ -1,5 +1,6 @@
 import { AudioModule, AudioSource } from './audio';
 import spotifyModule from './spotify';
+import podcastModule from './streams';
 
 interface AudioModuleMap { [key: string]: AudioModule }
 
@@ -48,7 +49,8 @@ class AudioSourceService {
 }
 
 export const audioSourceService = new AudioSourceService({
-    'spotify': spotifyModule as AudioModule
+	'spotify': spotifyModule as AudioModule,
+	'podcast': podcastModule
 });
 
 export * from './audio';
