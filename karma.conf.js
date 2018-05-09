@@ -1,5 +1,7 @@
 require('babel-core/register');
 
+const path = require('path');
+
 module.exports = function (config) {
 	config.set({
 
@@ -11,20 +13,11 @@ module.exports = function (config) {
 		frameworks: ['jasmine'],
 
 		// list of files / patterns to load in the browser
-		files: [
-			'test/**/*.ts',
-			'test/**/*.tsx'
-		],
-
-		// list of files to exclude
-		exclude: [],
+		files: [ 'test/setupTests.ts' ],
 
 		// preprocess matching files before serving them to the browser
 		// available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-		preprocessors: {
-			'**/*.ts': ['webpack'],
-			'**/*.tsx': ['webpack']
-		},
+		preprocessors: { 'test/setupTests.ts': ['webpack', 'sourcemap'] },
 
 		// test results reporter to use
 		// possible values: 'dots', 'progress'
@@ -56,6 +49,45 @@ module.exports = function (config) {
 		// how many browser should be started simultaneous
 		concurrency: 1,
 
-		webpack: require('./webpack.config.babel')
+		webpack: {
+			output: {
+				path: path.resolve('dist'),
+				filename: '[name].js'
+			},
+
+			resolve: {
+				extensions: ['.ts', '.tsx', '.js'],
+				modules: [ path.resolve('src'), path.resolve('test'), 'node_modules' ]
+			},
+
+			module: {
+				rules: [{
+					test: /\.tsx?$/,
+					exclude: [path.resolve('node_modules')],
+					use: 'awesome-typescript-loader'
+				}, {
+					test: /\.css$/,
+					exclude: [path.resolve('node_modules')],
+					use: ['style-loader', 'css-loader']
+				}, {
+					test: /\.scss$/,
+					exclude: [path.resolve('node_modules')],
+					use: ['style-loader', 'css-loader', 'sass-loader']
+				}]
+			},
+
+			externals: {
+				'react/addons': 'react',
+				'react/lib/ExecutionEnvironment': 'react',
+				'react/lib/ReactContext': 'react'
+			},
+
+			devtool: 'inline-source-map'
+		},
+
+		// https://github.com/webpack-contrib/karma-webpack/issues/188
+		mime: {
+			'text/x-typescript': ['ts','tsx']
+		}
 	})
 }

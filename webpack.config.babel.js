@@ -11,23 +11,6 @@ import * as project from './package.json';
 
 import env from './config/webpack.env.config';
 
-const paths = {
-	root: path.resolve(),
-	src: path.resolve('src'),
-	out: path.resolve('dist')
-};
-
-const entry = env.isTesting ? undefined : {
-	'index': [
-		'./src/index'
-	],
-	'libs': [
-		'react',
-		'react-dom',
-		'react-router-dom'
-	]
-};
-
 const plugins = [
 	new webpack.LoaderOptionsPlugin({
 		debug: env.isDevelopment
@@ -36,62 +19,60 @@ const plugins = [
 		filename: '[name].css',
 		allChunks: true,
 		disable: !env.isProduction
+	}),
+	new webpack.ProvidePlugin({
+		'regeneratorRuntime': 'regenerator-runtime'
+	}),
+	new webpack.optimize.CommonsChunkPlugin({
+		name: 'libs',
+		minChunks: Infinity
+	}),
+	new HtmlWebpackPlugin({
+		title: 'Carputer',
+		template: 'html/index.hbs',
+		chunksSortMode: 'dependency',
+		pageOptions: { includeDevServer: env.isDevelopment }
 	})
+	// new CopyWebpackPlugin([
+	// 	//{ from: 'favicon.ico', to: 'favicon.ico' },
+	// 	{ from: '**/images/**/*', ignore: ['node_modules/**/*'] }
+	// ])
 ];
 
-const externals = {};
-
-if (env.isTesting) {
-	externals['react/addons'] = 'react';
-	externals['react/lib/ExecutionEnvironment'] = 'react';
-	externals['react/lib/ReactContext'] = 'react';
-} else {
+if (env.isProduction) {
 	plugins.push.apply(plugins, [
-		new webpack.ProvidePlugin({
-			'regeneratorRuntime': 'regenerator-runtime'
+		new webpack.DefinePlugin({
+			'process.env': {
+				NODE_ENV: JSON.stringify('production')
+			}
 		}),
-		new webpack.optimize.CommonsChunkPlugin({
-			name: 'libs',
-			minChunks: Infinity
-		}),
-		new HtmlWebpackPlugin({
-			title: 'Carputer',
-			template: 'html/index.hbs',
-			chunksSortMode: 'dependency',
-			pageOptions: { includeDevServer: env.isDevelopment }
-		})
-		// new CopyWebpackPlugin([
-		// 	//{ from: 'favicon.ico', to: 'favicon.ico' },
-		// 	{ from: '**/images/**/*', ignore: ['node_modules/**/*'] }
-		// ])
+		new webpack.optimize.UglifyJsPlugin(),
+		new webpack.optimize.ModuleConcatenationPlugin()
 	]);
-
-	if (env.isProduction) {
-		plugins.push.apply(plugins, [
-			new webpack.DefinePlugin({
-				'process.env': {
-					NODE_ENV: JSON.stringify('production')
-				}
-			}),
-			new webpack.optimize.UglifyJsPlugin(),
-			new webpack.optimize.ModuleConcatenationPlugin()
-		]);
-	}
 }
 
 module.exports = {
-	entry,
+	entry: {
+		'index': [
+			'./src/index'
+		],
+		'libs': [
+			'react',
+			'react-dom',
+			'react-router-dom'
+		]
+	},
+	
 	plugins,
-	externals,
 
 	output: {
-		path: paths.out,
+		path: path.resolve('dist'),
 		filename: '[name].js'
 	},
 
 	resolve: {
 		extensions: ['.ts', '.tsx', '.js', '.html'],
-		modules: [ paths.src, 'node_modules' ]
+		modules: [ path.resolve('src'), 'node_modules' ]
 	},
 
 	module: {
