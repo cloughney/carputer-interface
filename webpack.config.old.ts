@@ -132,7 +132,6 @@ module.exports = {
 		noInfo: true,
 		inline: true,
 		historyApiFallback: true,
-		https: true,
-		host: '0.0.0.0'
+		https: true
 	}
 };
